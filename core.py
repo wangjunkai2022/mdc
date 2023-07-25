@@ -821,8 +821,8 @@ def move_subtitles(filepath, path, multi_part, number, part, leak_word, c_word, 
                 shutil.copyfile(str(subfile), str(sub_targetpath))
                 print(f"[+]Sub Copied!       {sub_targetpath.name}")
                 result = True
-            if result:
-                break
+            # if result:
+            #     break
     return result
 
 
