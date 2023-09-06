@@ -812,7 +812,7 @@ def move_subtitles(filepath, path, multi_part, number, part, leak_word, c_word, 
             if filepath_obj.stem.split('.')[0].lower() != subfile.stem.split('.')[0].lower():
                 continue
             suffixes = len(subfile.suffixes) > 2 and subfile.suffixes[-2:] or subfile.suffixes
-            sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(suffixes)}"
+            sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
             if link_mode not in (1, 2):
                 shutil.move(str(subfile), str(sub_targetpath))
                 print(f"[+]Sub Moved!        {sub_targetpath.name}")
