@@ -63,14 +63,6 @@ def get_number(debug: bool, file_path: str) -> str:
             filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
             lower_check = filename.lower()
             if 'fc2' in lower_check:
-                # 这里是fc2ppv 和fc2ppv-45678-1.mp4 的处理地方  自己安装情况添加 start
-                if 'fc2ppv' in lower_check:
-                    fc2cd = re.search(r'fc2ppv-(\d)+-\d', lower_check)
-                    if fc2cd:
-                        num = re.search(r'-\d\.', lower_check).group()
-                        lower_check = re.sub(r'-\d\.', "-cd" + num[1:len(num) - 1] + ".", lower_check)
-                    lower_check = lower_check.replace('fc2ppv', 'fc2')
-                # 这里是fc2ppv 和fc2ppv-45678-1.mp4 的处理地方  自己安装情况添加  end
                 filename = lower_check.replace('--', '-').replace('_', '-').upper()
             filename = re.sub("[-_]cd\d{1,2}", "", filename, flags=re.IGNORECASE)
             if not re.search("-|_", filename):  # 去掉-CD1之后再无-的情况，例如n1012-CD1.wmv
