@@ -54,7 +54,7 @@ def get_number(debug: bool, file_path: str) -> str:
             return file_number
         elif '字幕组' in filepath or 'SUB' in filepath.upper() or re.match(r'[\u30a0-\u30ff]+', filepath):
             filepath = G_spat.sub("", filepath)
-            filepath = re.sub("\[.*?\]", "", filepath)
+            filepath = re.sub("\[.*?\]","",filepath)
             filepath = filepath.replace(".chs", "").replace(".cht", "")
             file_number = str(re.findall(r'(.+?)\.', filepath)).strip(" [']")
             return file_number
@@ -65,18 +65,26 @@ def get_number(debug: bool, file_path: str) -> str:
             if 'fc2' in lower_check:
                 filename = lower_check.replace('--', '-').replace('_', '-').upper()
             filename = re.sub("[-_]cd\d{1,2}", "", filename, flags=re.IGNORECASE)
-            if not re.search("-|_", filename):  # 去掉-CD1之后再无-的情况，例如n1012-CD1.wmv
+            if not re.search("-|_", filename): # 去掉-CD1之后再无-的情况，例如n1012-CD1.wmv
                 return str(re.search(r'\w+', filename[:filename.find('.')], re.A).group())
-            file_number = os.path.splitext(filename)
+            file_number =  os.path.splitext(filename)
             filename = re.search(r'[\w\-_]+', filename, re.A)
             if filename:
                 file_number = str(filename.group())
             else:
                 file_number = file_number[0]
-            file_number = re.sub("(-|_)c$", "", file_number, flags=re.IGNORECASE)
-            if re.search("\d+ch$", file_number, flags=re.I):
-                file_number = file_number[:-2]
-            return file_number.upper()
+            
+            new_file_number = file_number
+            if re.search("-c", file_number, flags=re.IGNORECASE):
+                new_file_number = re.sub("(-|_)c$", "", file_number, flags=re.IGNORECASE)
+            elif re.search("-u$", file_number, flags=re.IGNORECASE):
+                new_file_number = re.sub("(-|_)u$", "", file_number, flags=re.IGNORECASE)
+            elif re.search("-uc$", file_number, flags=re.IGNORECASE):
+                new_file_number = re.sub("(-|_)uc$", "", file_number, flags=re.IGNORECASE)
+            elif re.search("\d+ch$", file_number, flags=re.I):
+                new_file_number = file_number[:-2]
+                
+            return new_file_number.upper()
         else:  # 提取不含减号-的番号，FANZA CID
             # 欧美番号匹配规则
             oumei = re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', filepath)
@@ -93,6 +101,7 @@ def get_number(debug: bool, file_path: str) -> str:
         if debug:
             print(f'[-]Number Parser exception: {e} [{file_path}]')
         return None
+        
 
 
 # 按javdb数据源的命名规范提取number

@@ -73,6 +73,7 @@ RUN apt-get -y update \
     && apt-get install -y git \
     && git clone https://github.com/wangjunkai2022/mdc.git /tmp/mdc \
     && cd /tmp/mdc \
+    && rm -rf .git \
     && python3 -m venv /opt/venv && . /opt/venv/bin/activate \
     && pip install --upgrade \
         pip \
