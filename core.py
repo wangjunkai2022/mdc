@@ -48,7 +48,7 @@ def moveFailedFolder(filepath):
 
             if os.path.exists(filepath):
                 print(f'移动文件:\n{filepath}\n到：\n{failed_name}')
-                shutil.move(filepath, failed_name)
+                shutil.move(filepath, failed_name, copy_function=shutil.copytree)
             else:
                 print(f'文件{filepath}已经不存在了 移动到其他地方了')
 
@@ -614,7 +614,7 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
         # 移除原先soft_link=2的功能代码，因默认记录日志，已经可追溯文件来源
         create_softlink = False
         if link_mode not in (1, 2):
-            shutil.move(filepath, targetpath)
+            shutil.move(filepath, targetpath, copy_function=shutil.copytree)
             print(f"移动成功\t原路径\n{filepath}\n现在路径\n{targetpath}")
         elif link_mode == 2:
             # 跨卷或跨盘符无法建立硬链接导致异常，回落到建立软链接
@@ -659,7 +659,7 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         link_mode = config.getInstance().link_mode()
         create_softlink = False
         if link_mode not in (1, 2):
-            shutil.move(filepath, targetpath)
+            shutil.move(filepath, targetpath, copy_function=shutil.copytree)
             print("[!]Move =>          ", path)
             return
         elif link_mode == 2:
@@ -829,7 +829,7 @@ def move_subtitles(filepath, path, multi_part, number, part, leak_word, c_word, 
             suffixes = len(subfile.suffixes) > 2 and subfile.suffixes[-2:] or subfile.suffixes
             sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
             if link_mode not in (1, 2):
-                shutil.move(str(subfile), str(sub_targetpath))
+                shutil.move(str(subfile), str(sub_targetpath), copy_function=shutil.copytree)
                 print(f"[+]Sub Moved!        {sub_targetpath.name}")
                 result = True
             else:
