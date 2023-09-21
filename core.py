@@ -45,13 +45,13 @@ def moveFailedFolder(filepath):
             if os.path.exists(failed_name):
                 print('[-]File Exists while moving to FailedFolder')
                 return
-            
+
             if os.path.exists(filepath):
                 print(f'移动文件:\n{filepath}\n到：\n{failed_name}')
                 shutil.move(filepath, failed_name)
             else:
                 print(f'文件{filepath}已经不存在了 移动到其他地方了')
-            
+
         except Exception as e:
             print('[-]File Moving to FailedFolder unsuccessful!')
             print(f'错误代码：{e}')
@@ -615,10 +615,12 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
         create_softlink = False
         if link_mode not in (1, 2):
             shutil.move(filepath, targetpath)
+            print(f"移动成功\t原路径\n{filepath}\n现在路径\n{targetpath}")
         elif link_mode == 2:
             # 跨卷或跨盘符无法建立硬链接导致异常，回落到建立软链接
             try:
                 os.link(filepath, targetpath, follow_symlinks=False)
+                print(f"硬链接成功\t原路径\n{filepath}\n现在路径\n{targetpath}")
             except:
                 create_softlink = True
         if link_mode == 1 or create_softlink:
@@ -627,6 +629,7 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
             try:
                 filerelpath = os.path.relpath(filepath, path)
                 os.symlink(filerelpath, targetpath)
+                print(f"软链接成功\t原路径\n{filepath}\n现在路径\n{targetpath}")
             except:
                 os.symlink(str(filepath_obj.resolve()), targetpath)
         return
