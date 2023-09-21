@@ -45,8 +45,13 @@ def moveFailedFolder(filepath):
             if os.path.exists(failed_name):
                 print('[-]File Exists while moving to FailedFolder')
                 return
-            print(f'移动文件:\n{filepath}\n到：\n{failed_name}')
-            shutil.move(filepath, failed_name)
+            
+            if os.path.exists(filepath):
+                print(f'移动文件:\n{filepath}\n到：\n{failed_name}')
+                shutil.move(filepath, failed_name)
+            else:
+                print(f'文件{filepath}已经不存在了 移动到其他地方了')
+            
         except Exception as e:
             print('[-]File Moving to FailedFolder unsuccessful!')
             print(f'错误代码：{e}')
