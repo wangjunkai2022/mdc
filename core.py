@@ -47,8 +47,9 @@ def moveFailedFolder(filepath):
                 return
             print(f'移动文件:\n{filepath}\n到：\n{failed_name}')
             shutil.move(filepath, failed_name)
-        except:
+        except Exception as e:
             print('[-]File Moving to FailedFolder unsuccessful!')
+            print(f'错误代码：{e}')
 
 
 def get_info(json_data):  # 返回json里的数据
