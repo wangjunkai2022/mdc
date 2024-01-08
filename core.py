@@ -2,7 +2,7 @@ import os.path
 import pathlib
 import shutil
 import sys
-
+import time
 from PIL import Image
 from io import BytesIO
 from datetime import datetime
@@ -48,7 +48,9 @@ def moveFailedFolder(filepath):
 
             if os.path.exists(filepath):
                 print(f'移动文件:\n{filepath}\n到：\n{failed_name}')
-                shutil.move(filepath, failed_name, copy_function=shutil.copytree)
+                while not os.path.exists(failed_name):
+                    shutil.move(filepath, failed_name, copy_function=shutil.copytree)
+                    time.sleep(5)
             else:
                 print(f'文件{filepath}已经不存在了 移动到其他地方了')
 
@@ -614,7 +616,9 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
         # 移除原先soft_link=2的功能代码，因默认记录日志，已经可追溯文件来源
         create_softlink = False
         if link_mode not in (1, 2):
-            shutil.move(filepath, targetpath, copy_function=shutil.copytree)
+            while not os.path.exists(targetpath):
+                shutil.move(filepath, targetpath, copy_function=shutil.copytree)
+                time.sleep(5)
             print(f"移动成功\t原路径\n{filepath}\n现在路径\n{targetpath}")
         elif link_mode == 2:
             # 跨卷或跨盘符无法建立硬链接导致异常，回落到建立软链接
@@ -659,7 +663,9 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         link_mode = config.getInstance().link_mode()
         create_softlink = False
         if link_mode not in (1, 2):
-            shutil.move(filepath, targetpath, copy_function=shutil.copytree)
+            while not os.path.exists(targetpath):
+                shutil.move(filepath, targetpath, copy_function=shutil.copytree)
+                time.sleep(5)
             print("[!]Move =>          ", path)
             return
         elif link_mode == 2:
@@ -713,7 +719,9 @@ def linkImage(path, number, part, leak_word, c_word, hack_word, ext):
         try:
             os.link(str(normal_path), str(multi_path), follow_symlinks=False)
         except:
-            shutil.copyfile(str(normal_path), str(multi_path))
+            while not os.path.exists(str(multi_path)):
+                shutil.copyfile(str(normal_path), str(multi_path))
+                time.sleep(5)
 
 
 def debug_print(data: json):
@@ -829,11 +837,16 @@ def move_subtitles(filepath, path, multi_part, number, part, leak_word, c_word, 
             suffixes = len(subfile.suffixes) > 2 and subfile.suffixes[-2:] or subfile.suffixes
             sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
             if link_mode not in (1, 2):
-                shutil.move(str(subfile), str(sub_targetpath), copy_function=shutil.copytree)
+                while not os.path.exists(str(sub_targetpath)):
+                    shutil.move(str(subfile), str(sub_targetpath), copy_function=shutil.copytree)
+                    time.sleep(5)
                 print(f"[+]Sub Moved!        {sub_targetpath.name}")
                 result = True
             else:
-                shutil.copyfile(str(subfile), str(sub_targetpath))
+                while not os.path.exists(str(sub_targetpath)):
+                    shutil.copyfile(str(subfile), str(sub_targetpath))
+                    time.sleep(5)
+
                 print(f"[+]Sub Copied!       {sub_targetpath.name}")
                 result = True
             # if result:
