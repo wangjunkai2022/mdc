@@ -899,7 +899,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     if re.search(r'[-_]UC(\.\w+$|-\w+)', movie_path,
                  re.I):
         cn_sub = True
-        c_word = '-UC'  #
+        # c_word = '-UC'  #
         hack = True
         hack_word = "-UC"
 
