@@ -895,7 +895,6 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
                  re.I) or '中文' in movie_path or '字幕' in movie_path:
         cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
-        hack_word = "-C"
 
     if re.search(r'[-_]UC(\.\w+$|-\w+)', movie_path,
                  re.I):
@@ -927,10 +926,11 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     if '4k'.upper() in str(movie_path).upper() or '4k' in movie_path:
         _4k = True
         hack_word = hack_word + "-4k"
+
     if '.iso'.upper() in str(movie_path).upper() or '.iso' in movie_path:
         iso = True
 
-# 判断是否4k
+    # 判断是否4k
     if '4K' in tag:
         tag.remove('4K')  # 从tag中移除'4K'
 
