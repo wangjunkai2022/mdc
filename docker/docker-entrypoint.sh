@@ -31,7 +31,7 @@ fi
 echo "Starting..."
 cd /data
 isNull="NULL"
-if [ "$1" = "$isNull" ]; then
+if [[ $1 == *$isNull ]]; then
   echo "$1...的参数是空"
   gosu ${USER} /app/Movie_Data_Capture
 else
