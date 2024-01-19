@@ -31,7 +31,9 @@ fi
 echo "Starting..."
 cd /data
 if [ ! $@ ]; then
+  echo "$@...的参数是空"
   gosu ${USER} /app/Movie_Data_Capture
 else
+    echo "$@...的参数"
   gosu ${USER} /app/Movie_Data_Capture $@
 fi
