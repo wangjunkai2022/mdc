@@ -31,9 +31,9 @@ fi
 echo "Starting..."
 cd /data
 Null=
-echo "a"$@"的参数是啥？？？"
-if [[ $@ == $Null ]]; then
-  echo "$1...的参数是空"
+echo "--$@--的参数是啥？？？--$Null--又是啥"
+if [ "$@" = "$Null" ]; then
+  echo "传入...的参数是空"
   gosu ${USER} /app/Movie_Data_Capture
 else
   echo "$@...的参数"
