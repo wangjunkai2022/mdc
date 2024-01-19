@@ -30,7 +30,7 @@ fi
 
 echo "Starting..."
 cd /data
-if [ ! -n "$@" ]; then
+if [ ! -n "$1" ]; then
   echo "$@...的参数是空"
   gosu ${USER} /app/Movie_Data_Capture
 else
