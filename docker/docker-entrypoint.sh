@@ -30,7 +30,7 @@ fi
 
 echo "Starting..."
 cd /data
-if [ ! -n "$@" ]; then
+if [ ! $@ ]; then
   gosu ${USER} /app/Movie_Data_Capture
 else
   gosu ${USER} /app/Movie_Data_Capture $@
