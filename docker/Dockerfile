@@ -123,5 +123,4 @@ RUN \
 
 VOLUME [ "/data", "/config" ]
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD "NULL"
+ENTRYPOINT ["/docker-entrypoint.sh","$@"]
