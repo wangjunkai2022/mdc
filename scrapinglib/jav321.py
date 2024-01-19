@@ -34,7 +34,8 @@ class Jav321(Parser):
             resp = httprequest.get(self.detailurl, cookies=self.cookies, proxies=self.proxies, verify=self.verify)
             self.detailhtml = resp
             return etree.fromstring(resp, etree.HTMLParser())
-        resp = httprequest.post(url, data={"sn": self.number}, cookies=self.cookies, proxies=self.proxies, verify=self.verify)
+        resp = httprequest.post(url, data={"sn": self.number}, cookies=self.cookies, proxies=self.proxies,
+                                verify=self.verify)
         if "/video/" in resp.url:
             self.detailurl = resp.url
             self.detailhtml = resp.text
@@ -48,13 +49,15 @@ class Jav321(Parser):
         videourl_pather = re.compile(r'<source src=\"(.*?)\"')
         videourl = videourl_pather.findall(self.detailhtml)
         if videourl:
-            url = videourl[0].replace('awscc3001.r18.com', 'cc3001.dmm.co.jp').replace('cc3001.r18.com', 'cc3001.dmm.co.jp')
+            url = videourl[0].replace('awscc3001.r18.com', 'cc3001.dmm.co.jp').replace('cc3001.r18.com',
+                                                                                       'cc3001.dmm.co.jp').replace(
+                'awspv3001.r18.com', 'cc3001.dmm.co.jp')
             return url
         else:
             return ''
 
     def getRelease(self, htmltree):
         return super().getRelease(htmltree).split(": ")[1]
-    
+
     def getRuntime(self, htmltree):
         return super().getRuntime(htmltree).split(": ")[1]
