@@ -32,7 +32,7 @@ echo "Starting..."
 cd /data
 Null=
 echo "--$@--的参数是啥？？？--$Null--又是啥"
-if [ "$@" = "$Null" ]; then
+if [ $@ = $Null ]; then
   echo "传入...的参数是空"
   gosu ${USER} /app/Movie_Data_Capture
 else
