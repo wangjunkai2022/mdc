@@ -54,7 +54,7 @@ def get_number(debug: bool, file_path: str) -> str:
             return file_number
         elif '字幕组' in filepath or 'SUB' in filepath.upper() or re.match(r'[\u30a0-\u30ff]+', filepath):
             filepath = G_spat.sub("", filepath)
-            filepath = re.sub("\[.*?\]","",filepath)
+            filepath = re.sub("\[.*?\]", "", filepath)
             filepath = filepath.replace(".chs", "").replace(".cht", "")
             file_number = str(re.findall(r'(.+?)\.', filepath)).strip(" [']")
             return file_number
@@ -63,17 +63,21 @@ def get_number(debug: bool, file_path: str) -> str:
             filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
             lower_check = filename.lower()
             if 'fc2' in lower_check:
+                re_file = lower_check.find("fc2")
+                if re_file > 0:
+                    lower_check = lower_check[re_file:]
                 filename = lower_check.replace('--', '-').replace('_', '-').upper()
+
             filename = re.sub("[-_]cd\d{1,2}", "", filename, flags=re.IGNORECASE)
-            if not re.search("-|_", filename): # 去掉-CD1之后再无-的情况，例如n1012-CD1.wmv
+            if not re.search("-|_", filename):  # 去掉-CD1之后再无-的情况，例如n1012-CD1.wmv
                 return str(re.search(r'\w+', filename[:filename.find('.')], re.A).group())
-            file_number =  os.path.splitext(filename)
+            file_number = os.path.splitext(filename)
             filename = re.search(r'[\w\-_]+', filename, re.A)
             if filename:
                 file_number = str(filename.group())
             else:
                 file_number = file_number[0]
-            
+
             new_file_number = file_number
             if re.search("-c", file_number, flags=re.IGNORECASE):
                 new_file_number = re.sub("(-|_)c$", "", file_number, flags=re.IGNORECASE)
@@ -83,7 +87,7 @@ def get_number(debug: bool, file_path: str) -> str:
                 new_file_number = re.sub("(-|_)uc$", "", file_number, flags=re.IGNORECASE)
             elif re.search("\d+ch$", file_number, flags=re.I):
                 new_file_number = file_number[:-2]
-                
+
             return new_file_number.upper()
         else:  # 提取不含减号-的番号，FANZA CID
             # 欧美番号匹配规则
@@ -101,7 +105,6 @@ def get_number(debug: bool, file_path: str) -> str:
         if debug:
             print(f'[-]Number Parser exception: {e} [{file_path}]')
         return None
-        
 
 
 # 按javdb数据源的命名规范提取number
@@ -171,6 +174,7 @@ if __name__ == "__main__":
     #     import doctest
     #     doctest.testmod(raise_on_error=True)
     test_use_cases = (
+        "/videos/SukebeiEnyo合集一/Fc2 PPV 1535736- 1541275-1525602(Uncensored Leaked) 【無修正】由○可○ 流出 part 3.Alt1/(UNCENSORED LEAKED)FC2-1525602【初流出】水島アリス【削除必須】某メーカーからの流出作品① (ARISU MIZUSHIMA).mp4",
         "MEYD-594-C.mp4",
         "SSIS-001_C.mp4",
         "SSIS100-C.mp4",
