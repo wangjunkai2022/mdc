@@ -23,6 +23,14 @@ def escape_path(path, escape_literals: str):  # Remove escape literals
     return path
 
 
+# 返回文件名和后缀
+def _GetFileNameAll(file):
+    file_path, file_name_all = os.path.split(file)
+    file_name = os.path.splitext(file_name_all)[0]
+    file_name_extension = os.path.splitext(file_name_all)[1]
+    return file_name, file_name_extension, file_path
+
+
 def moveFailedFolder(filepath):
     conf = config.getInstance()
     failed_folder = conf.failed_folder()
@@ -43,8 +51,19 @@ def moveFailedFolder(filepath):
             wwibbmt.write(f'{tmstr} FROM[{filepath}]TO[{failed_name}]\n')
         try:
             if os.path.exists(failed_name):
-                print('[-]File Exists while moving to FailedFolder')
-                return
+                print(f'[-]File:\n{failed_name}\nExists while moving to FailedFolder')
+                __nameIndex = 1
+                file_name, file_name_extension, file_path = _GetFileNameAll(failed_name)
+                failed_name = os.path.join(file_path,
+                                           file_name + f'({__nameIndex})' + file_name_extension
+                                           )
+                while os.path.exists(failed_name):
+                    print(f'[-]File:\n{failed_name}\nExists while moving to FailedFolder')
+                    __nameIndex = __nameIndex + 1
+                    failed_name = os.path.join(file_path,
+                                               file_name + f'({__nameIndex})' + file_name_extension
+                                               )
+                # return
 
             if os.path.exists(filepath):
                 print(f'移动文件:\n{filepath}\n到：\n{failed_name}')
