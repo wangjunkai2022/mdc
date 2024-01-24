@@ -31,7 +31,8 @@ def get_xpath_single(html_code: str, xpath):
 G_USER_AGENT = r'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.133 Safari/537.36'
 
 
-def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None, encoding: str = None, json_headers=None):
+def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None, encoding: str = None,
+             json_headers=None):
     """
     网页请求核心函数
     """
@@ -65,10 +66,12 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None,
             errors = str(e)
     if "getaddrinfo failed" in errors:
         print("[-]Connect Failed! Please Check your proxy config")
+        print("[-]" + url)
         debug = config.getInstance().debug()
         if debug:
             print("[-]" + errors)
     else:
+        print("[-]" + url)
         print("[-]" + errors)
         print('[-]Connect Failed! Please check your Proxy or Network!')
     raise Exception('Connect Failed')
@@ -94,6 +97,8 @@ def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
         except Exception as e:
             print("[-]Connect retry {}/{}".format(i + 1, config_proxy.retry))
             errors = str(e)
+
+    print("[-]" + url)
     print("[-]Connect Failed! Please check your Proxy or Network!")
     print("[-]" + errors)
 
@@ -478,6 +483,8 @@ def download_file_with_filename(url: str, filename: str, path: str) -> None:
         except IOError:
             raise ValueError(f"[-]Create Directory '{path}' failed!")
             return
+
+    print('[-]' + url)
     print('[-]Connect Failed! Please check your Proxy or Network!')
     raise ValueError('[-]Connect Failed! Please check your Proxy or Network!')
     return
