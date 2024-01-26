@@ -24,7 +24,7 @@ class Config:
     def __init__(self, path: str = "config.ini"):
         path_search_order = (
             Path(path),
-            "/config/config.ini",
+            Path("/config/config.ini"),
             Path.cwd() / "config.ini",
             Path.home() / "mdc.ini",
             Path.home() / ".mdc.ini",
@@ -40,6 +40,7 @@ class Config:
             self.conf = configparser.ConfigParser()
             self.ini_path = ini_path
             if ini_path != "/config/config.ini" and os.path.exists("/config"):
+                print("复制一份配置文件在/config目录 下次读这个配置")
                 os.popen(f'cp {ini_path} /config/config.ini')
             try:
                 if self.conf.read(ini_path, encoding="utf-8-sig"):
