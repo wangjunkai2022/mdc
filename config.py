@@ -24,6 +24,7 @@ class Config:
     def __init__(self, path: str = "config.ini"):
         path_search_order = (
             Path(path),
+            "/config/config.ini",
             Path.cwd() / "config.ini",
             Path.home() / "mdc.ini",
             Path.home() / ".mdc.ini",
@@ -38,6 +39,8 @@ class Config:
         if ini_path:
             self.conf = configparser.ConfigParser()
             self.ini_path = ini_path
+            if ini_path != "/config/config.ini" and os.path.exists("/config"):
+                os.popen(f'cp {ini_path} /config/config.ini')
             try:
                 if self.conf.read(ini_path, encoding="utf-8-sig"):
                     if G_conf_override[0] is None:
@@ -108,6 +111,7 @@ class Config:
         as,asp...aspect_ratio完整名称都可以用来指代aspect_ratio=键名
         a则因为二义性，不是合法的省略键名
         """
+
         def err_exit(str):
             print(str)
             os._exit(2)
@@ -130,7 +134,8 @@ class Config:
                     key_lo = key.lower().strip()
                     syntax_err = False
             if syntax_err:
-                err_exit(f"[-]Config override syntax incorrect. example: 'd:s=1' or 'debug_mode:switch=1'. cmd='{cmd}' all='{option_cmd}'")
+                err_exit(
+                    f"[-]Config override syntax incorrect. example: 'd:s=1' or 'debug_mode:switch=1'. cmd='{cmd}' all='{option_cmd}'")
             if not len(sec_lo):
                 err_exit(f"[-]Config override Section name '{sec}' is empty! cmd='{cmd}'")
             if not len(key_lo):
@@ -142,7 +147,8 @@ class Config:
                 if not s.lower().startswith(sec_lo):
                     continue
                 if sec_name:
-                    err_exit(f"[-]Conig overide Section short name '{sec_lo}' is not unique! dup1='{sec_name}' dup2='{s}' cmd='{cmd}'")
+                    err_exit(
+                        f"[-]Conig overide Section short name '{sec_lo}' is not unique! dup1='{sec_name}' dup2='{s}' cmd='{cmd}'")
                 sec_name = s
             if sec_name is None:
                 err_exit(f"[-]Conig overide Section name '{sec}' not found! cmd='{cmd}'")
@@ -152,7 +158,8 @@ class Config:
                 if not k.lower().startswith(key_lo):
                     continue
                 if key_name:
-                    err_exit(f"[-]Conig overide Key short name '{key_lo}' is not unique! dup1='{key_name}' dup2='{k}' cmd='{cmd}'")
+                    err_exit(
+                        f"[-]Conig overide Key short name '{key_lo}' is not unique! dup1='{key_name}' dup2='{k}' cmd='{cmd}'")
                 key_name = k
             if key_name is None:
                 err_exit(f"[-]Conig overide Key name '{key}' not found! cmd='{cmd}'")
@@ -184,7 +191,7 @@ class Config:
         return self.conf.getint("common", "link_mode")
 
     def scan_hardlink(self) -> bool:
-        return self.conf.getboolean("common", "scan_hardlink", fallback=False)#未找到配置选项,默认不刮削
+        return self.conf.getboolean("common", "scan_hardlink", fallback=False)  # 未找到配置选项,默认不刮削
 
     def failed_move(self) -> bool:
         return self.conf.getboolean("common", "failed_move")
@@ -235,9 +242,9 @@ class Config:
         if value.isnumeric() and int(value) >= 0:
             return int(value)
         sec = 0
-        sec += sum(int(v)  for v in re.findall(r'(\d+)s', value, re.I))
-        sec += sum(int(v)  for v in re.findall(r'(\d+)m', value, re.I)) * 60
-        sec += sum(int(v)  for v in re.findall(r'(\d+)h', value, re.I)) * 3600
+        sec += sum(int(v) for v in re.findall(r'(\d+)s', value, re.I))
+        sec += sum(int(v) for v in re.findall(r'(\d+)m', value, re.I)) * 60
+        sec += sum(int(v) for v in re.findall(r'(\d+)h', value, re.I)) * 3600
         return sec
 
     def is_translate(self) -> bool:
@@ -348,7 +355,7 @@ class Config:
             return self.conf.getboolean("Name_Rule", "number_uppercase")
         except:
             return False
-        
+
     def number_regexs(self) -> str:
         try:
             return self.conf.get("Name_Rule", "number_regexs")
@@ -375,7 +382,7 @@ class Config:
 
     def get_direct(self) -> bool:
         return self.conf.getboolean("direct", "switch")
-    
+
     def is_storyline(self) -> bool:
         try:
             return self.conf.getboolean("storyline", "switch")
@@ -413,7 +420,7 @@ class Config:
 
     def cc_convert_vars(self) -> str:
         return self.conf.get("cc_convert", "vars",
-            fallback="actor,director,label,outline,series,studio,tag,title")
+                             fallback="actor,director,label,outline,series,studio,tag,title")
 
     def javdb_sites(self) -> str:
         return self.conf.get("javdb", "sites", fallback="38,39")
