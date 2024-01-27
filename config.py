@@ -23,8 +23,8 @@ def getInstance():
 class Config:
     def __init__(self, path: str = "config.ini"):
         path_search_order = (
-            Path(path),
             Path("/config/config.ini"),
+            Path(path),
             Path.cwd() / "config.ini",
             Path.home() / "mdc.ini",
             Path.home() / ".mdc.ini",
