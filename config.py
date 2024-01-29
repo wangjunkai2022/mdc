@@ -39,7 +39,7 @@ class Config:
         if ini_path:
             self.conf = configparser.ConfigParser()
             self.ini_path = ini_path
-            if ini_path != "/config/config.ini" and os.path.exists("/config"):
+            if os.path.exists("/config") and not os.path.exists("/config/config.ini"):
                 print("复制一份配置文件在/config目录 下次读这个配置")
                 os.popen(f'cp {ini_path} /config/config.ini')
             try:
