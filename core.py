@@ -622,7 +622,7 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
 
 def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_word, hack_word):  # 文件路径，番号，后缀，要移动至的位置
     filepath_obj = pathlib.Path(filepath)
-    houzhui = filepath_obj.suffix
+    houzhui = filepath_obj.suffix.lower()
     try:
         targetpath = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}{houzhui}")
         # 任何情况下都不要覆盖，以免遭遇数据源或者引擎错误导致所有文件得到同一个number，逐一
@@ -630,6 +630,7 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
         print(f'targetpath:\n{targetpath}')
         if os.path.exists(targetpath):
             while os.path.exists(targetpath):
+                __nameIndex = 0
                 print(f'[-]File:\n{targetpath}\nExists while moving to FailedFolder')
                 __nameIndex = __nameIndex + 1
                 targetpath = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}_Have{__nameIndex}{houzhui}")
@@ -678,7 +679,7 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
     if multi_part == 1:
         number += part  # 这时number会被附加上CD1后缀
     filepath_obj = pathlib.Path(filepath)
-    houzhui = filepath_obj.suffix
+    houzhui = filepath_obj.suffix.lower()
     targetpath = os.path.join(path, f"{number}{part}{leak_word}{c_word}{hack_word}{houzhui}")
     if os.path.exists(targetpath):
         __nameIndex = 0

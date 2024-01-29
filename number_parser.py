@@ -11,7 +11,7 @@ G_spat = re.compile(
     re.IGNORECASE)
 
 
-def get_number(debug: bool, file_path: str) -> str:
+def __get_number(debug: bool, file_path: str) -> str:
     """
     从文件路径中提取番号 from number_parser import get_number
     >>> get_number(False, "/Users/Guest/AV_Data_Capture/snis-829.mp4")
@@ -107,6 +107,31 @@ def get_number(debug: bool, file_path: str) -> str:
         return None
 
 
+def get_number(debug: bool, file_path: str) -> str:
+    number = __get_number(debug, file_path)
+    if number == "uncensored":
+        return None
+    return number
+
+
+def defNumbers(name):
+    return re.sub(r"(\s|-|_)+", "-",
+                  re.search(r"[A-Z]+(\s|-|_)+\d{3}(?=\D)", name).group().replace(" ", "-").replace("_", '-').upper())
+
+
+def defFc2Numbers(name):
+    if re.search("fc2", name, re.I):
+        __number = re.search(r"fc2(\s|-|_)*\d{7}(?=\D)", name, re.I)
+        if __number:
+            __number = re.search(r"\d{7}", __number.group())
+            return f"FC2-{__number.group()}"
+        __ppv = re.search(r"pp([a-z])?(\s|-|_)*\d{7}(?=\D)", name, re.I)
+        if __ppv:
+            __number = re.search(r"\d{7}", __ppv.group())
+            return f"FC2-{__number.group()}"
+    return None
+
+
 # 按javdb数据源的命名规范提取number
 G_TAKE_NUM_RULES = {
     'tokyo.*hot': lambda x: str(re.search(r'(cz|gedo|k|n|red-|se)\d{2,4}', x, re.I).group()),
@@ -120,6 +145,8 @@ G_TAKE_NUM_RULES = {
     'mdbk': lambda x: str(re.search(r'mdbk(-|_)(\d{4})', x, re.I).group()),
     'mdtm': lambda x: str(re.search(r'mdtm(-|_)(\d{4})', x, re.I).group()),
     'caribpr': lambda x: str(re.search(r'\d{6}(-|_)\d{3}', x, re.I).group()).replace('_', '-'),
+    r"[A-Z]+(\s|-|_)+\d{3}(?=\D)": defNumbers,
+    "fc2": defFc2Numbers,
 }
 
 
@@ -174,7 +201,13 @@ if __name__ == "__main__":
     #     import doctest
     #     doctest.testmod(raise_on_error=True)
     test_use_cases = (
-        "ABP-576 (Uncensored Leaked) 絶対的鉄板シチュエーション 3 長谷川るい (Rui Hasegawa).mp4",
+        "ABP  028女子マネージャーは、僕達の性処理ペット。 028 春咲りょう  uncensored.mp4",
+        "ABP  027 uncensored.mp4",
+        "Fc2 PPV 1501158 2 3.mp4",
+        "fc2ppv_1434797.mp4",
+        "FC2PPV-1043861 Maria Aine 愛音〇〇あ4 Uncensored Leaked 無碼流出 無修正(1).MP4",
+        "ABP-058-nyap2p.com.mp4",
+        "ABP 576 (Uncensored Leaked) 絶対的鉄板シチュエーション 3 長谷川るい (Rui Hasegawa).mp4",
         "MEYD-594-C.mp4",
         "SSIS-001_C.mp4",
         "SSIS100-C.mp4",
