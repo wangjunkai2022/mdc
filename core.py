@@ -629,7 +629,11 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
         # 同名覆盖致使全部文件损失且不可追回的最坏情况
         print(f'targetpath:\n{targetpath}')
         if os.path.exists(targetpath):
-            raise FileExistsError('File Exists on destination path, we will never overwriting.')
+            while os.path.exists(targetpath):
+                print(f'[-]File:\n{targetpath}\nExists while moving to FailedFolder')
+                __nameIndex = __nameIndex + 1
+                targetpath = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}_Have{__nameIndex}{houzhui}")
+            # raise FileExistsError('File Exists on destination path, we will never overwriting.')
         link_mode = config.getInstance().link_mode()
         # 如果link_mode 1: 建立软链接 2: 硬链接优先、无法建立硬链接再尝试软链接。
         # 移除原先soft_link=2的功能代码，因默认记录日志，已经可追溯文件来源
@@ -677,7 +681,12 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
     houzhui = filepath_obj.suffix
     targetpath = os.path.join(path, f"{number}{part}{leak_word}{c_word}{hack_word}{houzhui}")
     if os.path.exists(targetpath):
-        raise FileExistsError('File Exists on destination path, we will never overwriting.')
+        __nameIndex = 0
+        while os.path.exists(targetpath):
+            print(f'[-]File:\n{targetpath}\nExists while moving to FailedFolder')
+            __nameIndex = __nameIndex + 1
+            targetpath = os.path.join(path, f"{number}{part}{leak_word}{c_word}{hack_word}_Have{__nameIndex}{houzhui}")
+        # raise FileExistsError('File Exists on destination path, we will never overwriting.')
     try:
         link_mode = config.getInstance().link_mode()
         create_softlink = False
