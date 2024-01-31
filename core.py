@@ -143,6 +143,7 @@ def create_folder(json_data):  # 创建文件夹
 
 # path = examle:photo , video.in the Project Folder!
 def download_file_with_filename(url, filename, path, filepath, json_headers=None):
+    print(f"资源下载部分:{url}\nname{filename} \npath{path} \nfilepath{filepath}")
     conf = config.getInstance()
     configProxy = conf.proxy()
 
