@@ -159,8 +159,24 @@ def download_file_with_filename(url, filename, path, filepath, json_headers=None
             if r == '':
                 print('[-]Movie Download Data not found!')
                 return
-            with open(os.path.join(path, filename), "wb") as code:
-                code.write(r)
+
+            def crateFile():
+                try:
+                    # filename_path = os.path.join(path, filename)
+                    # if os.path.exists(filename_path):
+                    #     os.remove(filename_path)
+                    if not os.path.exists(path):
+                        try:
+                            os.makedirs(path)
+                        except:
+                            print(f"[-]crateFile Fatal error! Can not make folder '{path}'")
+                    with open(os.path.join(path, filename), "wb") as code:
+                        code.write(r)
+                except Exception:
+                    print(f"[-]Create Directory '{path}' failed!  crateFile")
+                    crateFile()
+
+            crateFile()
             return
         except requests.exceptions.ProxyError:
             i += 1
@@ -1123,3 +1139,9 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
                     tag, json_data.get('actor_list'), liuchu, uncensored, hack, hack_word, _4k, fanart_path,
                     poster_path,
                     thumb_path, iso)
+
+
+if __name__ == "__main__":
+    download_file_with_filename(
+        "https://vip-videoprem51000.fc2.com/up/202112/13/v/a/cut20211213FvVbt5va.mp4?mid=c89f2d14efb93ee9138b13a2071aaa31",
+        "nameFC2-2517230-trailer.mp4 ", "./", "")
