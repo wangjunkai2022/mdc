@@ -174,6 +174,9 @@ def download_file_with_filename(url, filename, path, filepath, json_headers=None
                         code.write(r)
                 except Exception:
                     print(f"[-]Create Directory '{path}' failed!  crateFile")
+                    time.sleep(2)
+                    if os.path.exists(os.path.join(path, filename)):
+                        os.remove(os.path.join(path, filename))
                     crateFile()
 
             crateFile()
