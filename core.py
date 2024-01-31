@@ -172,8 +172,8 @@ def download_file_with_filename(url, filename, path, filepath, json_headers=None
                             print(f"[-]crateFile Fatal error! Can not make folder '{path}'")
                     with open(os.path.join(path, filename), "wb") as code:
                         code.write(r)
-                except Exception:
-                    print(f"[-]Create Directory '{path}' failed!  crateFile")
+                except Exception as e:
+                    print(f"[-]Create Directory '{path}' failed!  crateFile \n{e}")
                     time.sleep(2)
                     if os.path.exists(os.path.join(path, filename)):
                         os.remove(os.path.join(path, filename))
