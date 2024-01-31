@@ -173,7 +173,7 @@ def download_file_with_filename(url, filename, path, filepath, json_headers=None
             print('[-]Image Download :Error', e)
     print(f'[-]url:{url}')
     print('[-]Connect Failed! Please check your Proxy or Network!')
-    moveFailedFolder(filepath)
+    # moveFailedFolder(filepath)
     return
 
 
@@ -252,7 +252,7 @@ def extrafanart_download_one_by_one(data, path, filepath, json_data=None):
         if download_only_missing_images and not file_not_exist_or_empty(jpg_fullpath):
             continue
         if download_file_with_filename(url, jpg_filename, path, filepath, json_data) == 'failed':
-            moveFailedFolder(filepath)
+            # moveFailedFolder(filepath)
             return
         for i in range(configProxy.retry):
             if file_not_exist_or_empty(jpg_fullpath):
