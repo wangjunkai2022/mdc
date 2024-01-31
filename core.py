@@ -143,7 +143,7 @@ def create_folder(json_data):  # 创建文件夹
 
 # path = examle:photo , video.in the Project Folder!
 def download_file_with_filename(url, filename, path, filepath, json_headers=None):
-    print(f"资源下载部分:{url}\nname{filename} \npath{path} \nfilepath{filepath}")
+    print(f"资源下载部分:{url}\nname:{filename} \npath:{path} \nfilepath:{filepath}")
     conf = config.getInstance()
     configProxy = conf.proxy()
 
@@ -194,9 +194,9 @@ def download_file_with_filename(url, filename, path, filepath, json_headers=None
 
 
 def trailer_download(trailer, leak_word, c_word, hack_word, number, path, filepath):
-    if download_file_with_filename(trailer, number + leak_word + c_word + hack_word + '-trailer.mp4', path,
-                                   filepath) == 'failed':
-        return
+    # if download_file_with_filename(trailer, number + leak_word + c_word + hack_word + '-trailer.mp4', path,
+    #                                filepath) == 'failed':
+    #     return
     configProxy = config.getInstance().proxy()
     for i in range(configProxy.retry):
         if file_not_exist_or_empty(path + '/' + number + leak_word + c_word + hack_word + '-trailer.mp4'):
