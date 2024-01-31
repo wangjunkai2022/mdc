@@ -160,7 +160,7 @@ def download_file_with_filename(url, filename, path, filepath, json_headers=None
                 print('[-]Movie Download Data not found!')
                 return
 
-            def crateFile():
+            def crateFile(count):
                 try:
                     # filename_path = os.path.join(path, filename)
                     # if os.path.exists(filename_path):
@@ -173,13 +173,15 @@ def download_file_with_filename(url, filename, path, filepath, json_headers=None
                     with open(os.path.join(path, filename), "wb") as code:
                         code.write(r)
                 except Exception as e:
-                    print(f"[-]Create Directory '{path}' failed!  crateFile \n{e}")
+                    if count > 10:
+                        return
+                    print(f"[-]Create Directory '{path}' failed!  crateFile \n{e} \n 重试次数:{count}")
                     time.sleep(2)
                     if os.path.exists(os.path.join(path, filename)):
                         os.remove(os.path.join(path, filename))
-                    crateFile()
+                    crateFile(count + 1)
 
-            crateFile()
+            crateFile(0)
             return
         except requests.exceptions.ProxyError:
             i += 1
