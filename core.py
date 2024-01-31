@@ -171,6 +171,7 @@ def download_file_with_filename(url, filename, path, filepath, json_headers=None
         #     return
         except Exception as e:
             print('[-]Image Download :Error', e)
+    print(f'[-]url:{url}')
     print('[-]Connect Failed! Please check your Proxy or Network!')
     moveFailedFolder(filepath)
     return

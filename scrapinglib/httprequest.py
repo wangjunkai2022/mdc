@@ -40,9 +40,11 @@ def get(url: str, cookies=None, ua: str = None, extra_headers=None, return_type:
             errors = str(e)
     if config.getInstance().debug():
         if "getaddrinfo failed" in errors:
+            print(f'[-]url:{url}')
             print("[-]Connect Failed! Please Check your proxy config")
             print("[-]" + errors)
         else:
+            print(f'[-]url:{url}')
             print("[-]" + errors)
             print('[-]Connect Failed! Please check your Proxy or Network!')
     raise Exception('Connect Failed')
@@ -73,9 +75,11 @@ def post(url: str, data: dict=None, files=None, cookies=None, ua: str=None, retu
             errors = str(e)
         if config.getInstance().debug():
             if "getaddrinfo failed" in errors:
+                print(f'[-]url:{url}')
                 print("[-]Connect Failed! Please Check your proxy config")
                 print("[-]" + errors)
             else:
+                print(f'[-]url:{url}')
                 print("[-]" + errors)
                 print('[-]Connect Failed! Please check your Proxy or Network!')
         raise Exception('Connect Failed')

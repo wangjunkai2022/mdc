@@ -484,7 +484,7 @@ def download_file_with_filename(url: str, filename: str, path: str) -> None:
             raise ValueError(f"[-]Create Directory '{path}' failed!")
             return
 
-    print('[-]' + url)
+    print('[-] url' + url)
     print('[-]Connect Failed! Please check your Proxy or Network!')
     raise ValueError('[-]Connect Failed! Please check your Proxy or Network!')
     return
