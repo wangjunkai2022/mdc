@@ -155,33 +155,36 @@ def download_file_with_filename(url, filename, path, filepath, json_headers=None
                 except:
                     print(f"[-]Fatal error! Can not make folder '{path}'")
                     os._exit(0)
-            r = get_html(url=url, return_type='content', json_headers=json_headers)
-            if r == '':
+            r = get_file(url=url, return_type='content', json_headers=json_headers)
+            if not r or r == '':
                 print('[-]Movie Download Data not found!')
                 return
-
-            def crateFile(count):
-                try:
-                    # filename_path = os.path.join(path, filename)
-                    # if os.path.exists(filename_path):
-                    #     os.remove(filename_path)
-                    if not os.path.exists(path):
-                        try:
-                            os.makedirs(path)
-                        except:
-                            print(f"[-]crateFile Fatal error! Can not make folder '{path}'")
-                    with open(os.path.join(path, filename), "wb") as code:
-                        code.write(r)
-                except Exception as e:
-                    if count > 10:
-                        return
-                    print(f"[-]Create Directory '{path}' failed!  crateFile \n{e} \n 重试次数:{count}")
-                    time.sleep(2)
-                    if os.path.exists(os.path.join(path, filename)):
-                        os.remove(os.path.join(path, filename))
-                    crateFile(count + 1)
-
-            crateFile(0)
+            with open(os.path.join(path, filename), "wb") as code:
+                for item in r.iter_content(10240):
+                    code.write(item)
+            # def crateFile(count):
+            #     try:
+            #         # filename_path = os.path.join(path, filename)
+            #         # if os.path.exists(filename_path):
+            #         #     os.remove(filename_path)
+            #         if not os.path.exists(path):
+            #             try:
+            #                 os.makedirs(path)
+            #             except:
+            #                 print(f"[-]crateFile Fatal error! Can not make folder '{path}'")
+            #         with open(os.path.join(path, filename), "wb") as code:
+            #             for item in r.iter_content(10240):
+            #                 code.write(item)
+            #     except Exception as e:
+            #         if count > 10:
+            #             return
+            #         print(f"[-]Create Directory '{path}' failed!  crateFile \n{e} \n 重试次数:{count}")
+            #         time.sleep(2)
+            #         if os.path.exists(os.path.join(path, filename)):
+            #             os.remove(os.path.join(path, filename))
+            #         crateFile(count + 1)
+            # 
+            # crateFile(0)
             return
         except requests.exceptions.ProxyError:
             i += 1
