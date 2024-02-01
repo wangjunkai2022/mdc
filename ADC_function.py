@@ -31,20 +31,63 @@ def get_xpath_single(html_code: str, xpath):
 G_USER_AGENT = r'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.133 Safari/537.36'
 
 
-def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None, encoding: str = None,
-             json_headers=None):
+def get_stream(url, cookies: dict = None, ua: str = None, return_type: str = None, encoding: str = None,
+               json_headers=None):
     """
     网页请求核心函数
     """
     verify = config.getInstance().cacert_file()
-    config_proxy = config.getInstance().proxy()
+    config_proxys = config.getInstance().proxys()
     errors = ""
 
     headers = {"User-Agent": ua or G_USER_AGENT}  # noqa
     if json_headers is not None:
         headers.update(json_headers)
 
-    for i in range(config_proxy.retry):
+    for config_proxy in config_proxys:
+        try:
+            if config_proxy.enable:
+                proxies = config_proxy.proxies()
+                result = requests.get(str(url), headers=headers, timeout=config_proxy.timeout, proxies=proxies,
+                                      verify=verify,
+                                      cookies=cookies, stream=True)
+            else:
+                result = requests.get(str(url), headers=headers, timeout=config_proxy.timeout, cookies=cookies,
+                                      stream=True)
+
+            return result
+        except Exception as e:
+            # print("[-]Connect retry {}/{}".format(i + 1, config_proxy.retry))
+            print(f"[-] url下载失败:{url} proxy:{config_proxy.proxies()}")
+            errors = str(e)
+
+    if "getaddrinfo failed" in errors:
+        print("[-]Connect Failed! Please Check your proxy config")
+        print("[-]" + url)
+        debug = config.getInstance().debug()
+        if debug:
+            print("[-]" + errors)
+    else:
+        print("[-]" + url)
+        print("[-]" + errors)
+        print('[-]Connect Failed! Please check your Proxy or Network!')
+    raise Exception('Connect Failed')
+
+
+def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None, encoding: str = None,
+             json_headers=None):
+    """
+    网页请求核心函数
+    """
+    verify = config.getInstance().cacert_file()
+    config_proxys = config.getInstance().proxys()
+    errors = ""
+
+    headers = {"User-Agent": ua or G_USER_AGENT}  # noqa
+    if json_headers is not None:
+        headers.update(json_headers)
+
+    for config_proxy in config_proxys:
         try:
             if config_proxy.enable:
                 proxies = config_proxy.proxies()
@@ -62,8 +105,10 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None,
                 result.encoding = encoding or result.apparent_encoding
                 return result.text
         except Exception as e:
-            print("[-]Connect retry {}/{}".format(i + 1, config_proxy.retry))
+            # print("[-]Connect retry {}/{}".format(i + 1, config_proxy.retry))
+            print(f"[-] url下载失败:{url} proxy:{config_proxy.proxies()}")
             errors = str(e)
+
     if "getaddrinfo failed" in errors:
         print("[-]Connect Failed! Please Check your proxy config")
         print("[-]" + url)
@@ -78,7 +123,7 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None,
 
 
 def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
-    config_proxy = config.getInstance().proxy()
+    config_proxys = config.getInstance().proxys()
     errors = ""
     headers_ua = {"User-Agent": G_USER_AGENT}
     if headers is None:
@@ -86,7 +131,7 @@ def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
     else:
         headers.update(headers_ua)
 
-    for i in range(config_proxy.retry):
+    for config_proxy in config_proxys:
         try:
             if config_proxy.enable:
                 proxies = config_proxy.proxies()
@@ -95,7 +140,8 @@ def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
                 result = requests.post(url, data=query, headers=headers, timeout=config_proxy.timeout)
             return result
         except Exception as e:
-            print("[-]Connect retry {}/{}".format(i + 1, config_proxy.retry))
+            print(f"[-] url下载失败:{url} proxy:{config_proxy.proxies()}")
+            # print("[-]Connect retry {}/{}".format(i + 1, config_proxy.retry))
             errors = str(e)
 
     print("[-]" + url)
