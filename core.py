@@ -58,7 +58,7 @@ def moveFailedFolder(filepath):
                                            file_name + f'({__nameIndex})' + file_name_extension
                                            )
                 while os.path.exists(failed_name):
-                    print(f'[-]File:\n{failed_name}\nExists while moving to FailedFolder')
+                    print(f'[-]File:\n{failed_name}\nExists while moving to FailedFolder index{__nameIndex} moveFailedFolder')
                     __nameIndex = __nameIndex + 1
                     failed_name = os.path.join(file_path,
                                                file_name + f'({__nameIndex})' + file_name_extension
@@ -632,9 +632,9 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
         # 同名覆盖致使全部文件损失且不可追回的最坏情况
         print(f'targetpath:\n{targetpath}')
         if os.path.exists(targetpath):
+            __nameIndex = 0
             while os.path.exists(targetpath):
-                __nameIndex = 0
-                print(f'[-]File:\n{targetpath}\nExists while moving to FailedFolder')
+                print(f'[-]File:\n{targetpath}\nExists while moving to FailedFolder index:{__nameIndex} paste_file_to_folder')
                 __nameIndex = __nameIndex + 1
                 targetpath = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}_Have{__nameIndex}{houzhui}")
             # raise FileExistsError('File Exists on destination path, we will never overwriting.')
@@ -687,7 +687,7 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
     if os.path.exists(targetpath):
         __nameIndex = 0
         while os.path.exists(targetpath):
-            print(f'[-]File:\n{targetpath}\nExists while moving to FailedFolder')
+            print(f'[-]File:\n{targetpath}\nExists while moving to FailedFolder index:{__nameIndex}  paste_file_to_folder_mode2')
             __nameIndex = __nameIndex + 1
             targetpath = os.path.join(path, f"{number}{part}{leak_word}{c_word}{hack_word}_Have{__nameIndex}{houzhui}")
         # raise FileExistsError('File Exists on destination path, we will never overwriting.')
