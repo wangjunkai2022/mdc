@@ -58,7 +58,8 @@ def moveFailedFolder(filepath):
                                            file_name + f'({__nameIndex})' + file_name_extension
                                            )
                 while os.path.exists(failed_name):
-                    print(f'[-]File:\n{failed_name}\nExists while moving to FailedFolder index{__nameIndex} moveFailedFolder')
+                    print(
+                        f'[-]File:\n{failed_name}\nExists while moving to FailedFolder index{__nameIndex} moveFailedFolder')
                     __nameIndex = __nameIndex + 1
                     failed_name = os.path.join(file_path,
                                                file_name + f'({__nameIndex})' + file_name_extension
@@ -114,7 +115,8 @@ def create_folder(json_data):  # 创建文件夹
     success_folder = conf.success_folder()
     actor = json_data.get('actor')
     location_rule = eval(conf.location_rule(), json_data)
-    if 'actor' in conf.location_rule() and len(actor) > 100:
+    maxlen = conf.max_actor_len()
+    if 'actor' in conf.location_rule() and len(actor) > maxlen:
         print(conf.location_rule())
         location_rule = eval(conf.location_rule().replace("actor", "'多人作品'"), json_data)
     maxlen = conf.max_title_len()
@@ -140,10 +142,22 @@ def create_folder(json_data):  # 创建文件夹
 
 
 # =====================资源下载部分===========================
+# 异步下载
+def async_download_file_with_filename(url, filename, path, filepath, json_headers=None):
+    import async_download
+    import asyncio
+    import concurrent.futures
+    try:
+        loop = asyncio.get_event_loop()
+        loop.run_in_executor(concurrent.futures.ThreadPoolExecutor(),
+                             async_download.sync_download, url, filename, path, filepath, json_headers)
+    except Exception as e:
+        print(f'异步下载文件错误:\nurl:{url}\npath{os.path.join(path, filename)}')
+
 
 # path = examle:photo , video.in the Project Folder!
 def download_file_with_filename(url, filename, path, filepath, json_headers=None):
-    print(f"资源下载部分:{url}\nname:{filename} \npath:{path} \nfilepath:{filepath}")
+    print(f"资源下载部分\turl:{url}\nname:{filename} \npath:{path} \nfilepath:{filepath}")
     conf = config.getInstance()
     configProxy = conf.proxy()
 
@@ -634,7 +648,8 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
         if os.path.exists(targetpath):
             __nameIndex = 0
             while os.path.exists(targetpath):
-                print(f'[-]File:\n{targetpath}\nExists while moving to FailedFolder index:{__nameIndex} paste_file_to_folder')
+                print(
+                    f'[-]File:\n{targetpath}\nExists while moving to FailedFolder index:{__nameIndex} paste_file_to_folder')
                 __nameIndex = __nameIndex + 1
                 targetpath = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}_Have{__nameIndex}{houzhui}")
             # raise FileExistsError('File Exists on destination path, we will never overwriting.')
@@ -687,7 +702,8 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
     if os.path.exists(targetpath):
         __nameIndex = 0
         while os.path.exists(targetpath):
-            print(f'[-]File:\n{targetpath}\nExists while moving to FailedFolder index:{__nameIndex}  paste_file_to_folder_mode2')
+            print(
+                f'[-]File:\n{targetpath}\nExists while moving to FailedFolder index:{__nameIndex}  paste_file_to_folder_mode2')
             __nameIndex = __nameIndex + 1
             targetpath = os.path.join(path, f"{number}{part}{leak_word}{c_word}{hack_word}_Have{__nameIndex}{houzhui}")
         # raise FileExistsError('File Exists on destination path, we will never overwriting.')

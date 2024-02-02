@@ -336,6 +336,12 @@ class Config:
     def location_rule(self) -> str:
         return self.conf.get("Name_Rule", "location_rule")
 
+    def max_actor_len(self) -> int:
+        try:
+            return self.conf.getint("Name_Rule", "max_actor_len")
+        except:
+            return 2
+
     def max_title_len(self) -> int:
         """
         Maximum title length
