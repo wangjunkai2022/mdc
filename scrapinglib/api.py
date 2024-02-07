@@ -34,7 +34,8 @@ class Scraping:
     """
     adult_full_sources = ['javlibrary', 'javdb', 'javbus', 'airav', 'fanza', 'xcity', 'jav321',
                           'mgstage', 'fc2', 'avsox', 'dlsite', 'carib', 'madou', 'msin',
-                          'getchu', 'gcolle', 'javday', 'pissplay', 'javmenu', 'pcolle', 'caribpr'
+                          'getchu', 'gcolle', 'javday', 'pissplay', 'javmenu', 'pcolle', 'caribpr',
+                          "javbit", "ggjav",
                           ]
 
     general_full_sources = ['tmdb', 'imdb']
@@ -218,7 +219,7 @@ class Scraping:
             elif "pcolle" in sources and "pcolle" in lo_file_number:
                 sources = ["pcolle"]
             elif "fc2" in lo_file_number:
-                sources = ["fc2", "avsox", "msin"]
+                sources = ["fc2", "avsox", "msin", "ggjav"]
             elif (re.search(r"\d+\D+-", file_number) or "siro" in lo_file_number):
                 if "mgstage" in sources:
                     sources = insert(sources, "mgstage")

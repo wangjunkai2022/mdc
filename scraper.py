@@ -79,14 +79,20 @@ def get_data_from_json(
         ca_cert = conf.cacert_file()
 
     json_data = search(file_number, sources, proxies=proxies, verify=ca_cert,
-                        dbsite=javdb_site, dbcookies=javdb_cookies,
-                        morestoryline=conf.is_storyline(),
-                        specifiedSource=specified_source, specifiedUrl=specified_url,
-                        debug = conf.debug())
+                       dbsite=javdb_site, dbcookies=javdb_cookies,
+                       morestoryline=conf.is_storyline(),
+                       specifiedSource=specified_source, specifiedUrl=specified_url,
+                       debug=conf.debug())
     # Return if data not found in all sources
     if not json_data:
         print('[-]Movie Number not found!')
-        return None
+        json_data = search(file_number, sources, proxies=proxies, verify=ca_cert,
+                           dbsite=javdb_site, dbcookies=javdb_cookies,
+                           morestoryline=conf.is_storyline(),
+                           specifiedSource=specified_source, specifiedUrl=specified_url,
+                           debug=conf.debug(), type="move")
+        if not json_data:
+            return None
 
     # 增加number严格判断，避免提交任何number，总是返回"本橋実来 ADZ335"，这种返回number不一致的数据源故障
     # 目前选用number命名规则是javdb.com Domain Creation Date: 2013-06-19T18:34:27Z
@@ -141,7 +147,7 @@ def get_data_from_json(
         tag.remove('XXXX')
     while 'xxx' in tag:
         tag.remove('xxx')
-    if json_data['source'] =='pissplay': # pissplay actor为英文名，不用去除空格
+    if json_data['source'] == 'pissplay':  # pissplay actor为英文名，不用去除空格
         actor = str(actor_list).strip("[ ]").replace("'", '')
     else:
         actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')

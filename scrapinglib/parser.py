@@ -8,6 +8,7 @@ import config
 from . import httprequest
 from .utils import getTreeElement, getTreeAll
 
+
 class Parser:
     """ 基础刮削类
     """
@@ -117,19 +118,20 @@ class Parser:
         url = "http://detailurl.ai/" + number
         return url
 
-    def getHtml(self, url, type = None):
+    def getHtml(self, url, type=None):
         """ 访问网页
         """
-        resp = httprequest.get(url, cookies=self.cookies, proxies=self.proxies, extra_headers=self.extraheader, verify=self.verify, return_type=type)
+        resp = httprequest.get(url, cookies=self.cookies, proxies=self.proxies, extra_headers=self.extraheader,
+                               verify=self.verify, return_type=type)
         if '<title>404 Page Not Found' in resp \
-            or '<title>未找到页面' in resp \
-            or '404 Not Found' in resp \
-            or '<title>404' in resp \
-            or '<title>お探しの商品が見つかりません' in resp:
+                or '<title>未找到页面' in resp \
+                or '404 Not Found' in resp \
+                or '<title>404' in resp \
+                or '<title>お探しの商品が見つかりません' in resp:
             return 404
         return resp
 
-    def getHtmlTree(self, url, type = None):
+    def getHtmlTree(self, url, type=None):
         """ 访问网页,返回`etree`
         """
         resp = self.getHtml(url, type)
@@ -173,7 +175,7 @@ class Parser:
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
         return js
 
-    def extradict(self, dic:dict):
+    def extradict(self, dic: dict):
         """ 额外修改dict
         """
         return dic
@@ -187,7 +189,7 @@ class Parser:
         return self.getTreeElement(htmltree, self.expr_title).strip()
 
     def getRelease(self, htmltree):
-        return self.getTreeElement(htmltree, self.expr_release).strip().replace('/','-')
+        return self.getTreeElement(htmltree, self.expr_release).strip().replace('/', '-')
 
     def getYear(self, htmltree):
         """ year基本都是从release中解析的
@@ -315,9 +317,9 @@ class Parser:
         try:
             result1 = self.getTreeAll(tree, expr)
             result2 = self.getTreeAll(tree, expr2)
-            clean = [ x.strip() for x in result1 if x.strip() and x.strip() != ',']
-            clean2 = [ x.strip() for x in result2 if x.strip() and x.strip() != ',']
-            result =  list(set(clean + clean2))
+            clean = [x.strip() for x in result1 if x.strip() and x.strip() != ',']
+            clean2 = [x.strip() for x in result2 if x.strip() and x.strip() != ',']
+            result = list(set(clean + clean2))
             return result
         except:
             return []
