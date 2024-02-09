@@ -25,7 +25,7 @@ class Fc2(Parser):
         self.allow_number_change = True
 
     def search(self, number):
-        self.number = number.lower().replace('fc2-ppv-', '').replace('fc2-', '')
+        self.number = number.lower().replace('fc2-ppv-', '').replace('fc2-', '').replace('fc2ppv-', '')
         if self.specifiedUrl:
             self.detailurl = self.specifiedUrl
         else:

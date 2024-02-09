@@ -318,7 +318,7 @@ def extrafanart_download_threadpool(url_list, save_dir, number, json_data=None):
 def image_ext(url):
     try:
         ext = os.path.splitext(url)[-1]
-        if ext in {'.jpg', '.jpge', '.bmp', '.png', '.gif'}:
+        if ext in {'.jpg', '.jpge', '.bmp', '.png', '.gif', ".webp"}:
             return ext
         return ".jpg"
     except:
@@ -1076,8 +1076,11 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
             cn_sub = True
         # 添加水印
         if conf.is_watermark():
-            add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored,
-                     hack, _4k, iso)
+            try:
+                add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored,
+                         hack, _4k, iso)
+            except:
+                pass
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path, tag,
