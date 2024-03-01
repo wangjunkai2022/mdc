@@ -12,7 +12,10 @@ class Ggjav(Parser):
     expr_cover = '//div[@class="info columns small-12"]//img/@src'
 
     def search(self, number):
-        self.number = number.strip().upper()
+        self.number = number
+        if 'fc2' in number.lower():
+            self.num = re.search(r'(\d\d\d\d\d\d\d)', number).group()
+            self.number = "fc2-ppv-" + self.num
         search_url = f"https://ggjav.com/main/search?string={self.number}"
         self.htmlcode = self.getHtml(search_url)
         # htmltree = etree.fromstring(self.htmlcode, etree.HTMLParser())
@@ -21,8 +24,11 @@ class Ggjav(Parser):
             return 404
         htmltree = lxml.html.fromstring(self.htmlcode)
         href = self.getTreeElement(htmltree,
-                                   '//div[@class="columns large-3 medium-6 small-12 item float-left"]/a[@href]/@href',
-                                   0)
+                                   '//div[@class="columns large-3 medium-6 small-12 item float-left"]/a/@href',
+                                   # '//div[starts-with(@class,columns)]'
+                                   )
+        if not href or href == '':
+            return ""
         self.detailurl = f"https://ggjav.com/{href}"
         self.htmlcode = self.getHtml(self.detailurl)
         htmltree = lxml.html.fromstring(self.htmlcode)
@@ -32,6 +38,8 @@ class Ggjav(Parser):
     def getNum(self, htmltree):
         number = self.getTreeElement(htmltree, self.expr_number)
         number = number.split("：")[1]
+        # if self.num and number == self.num:
+        #     return self.number
         return number
 
     def getCover(self, htmltree):

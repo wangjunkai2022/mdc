@@ -448,8 +448,8 @@ def rm_empty_folder(path):
 def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC):
     # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
     debug = config.getInstance().debug()
-    n_number = get_number(debug, movie_path)
     movie_path = os.path.abspath(movie_path)
+    n_number = get_number(debug, movie_path)
 
     if debug is True:
         print(f"[!] [{n_number}] As Number Processing for '{movie_path}'")
@@ -537,7 +537,7 @@ def main(args: tuple) -> Path:
         ' - ' + platform.platform() + ' \n[*] - ' + platform.machine() + ' - Python-' + platform.python_version())
 
     print('[*]================= Movie Data Capture =================')
-    print('[*]' + version.center(54))
+    # print('[*]' + version.center(54))
     print('[*]======================================================')
     print('[*]' + platform_total)
     print('[*]======================================================')

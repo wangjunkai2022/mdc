@@ -37,6 +37,7 @@ def __get_number(debug: bool, file_path: str) -> str:
     >>> get_number(False, "snis-829-C.mp4")
     'snis-829'
     """
+    file_path = os.path.abspath(os.path.dirname(file_path))
     filepath = os.path.basename(file_path)
     # debug True 和 False 两块代码块合并，原因是此模块及函数只涉及字符串计算，没有IO操作，debug on时输出导致异常信息即可
     try:
@@ -201,6 +202,7 @@ if __name__ == "__main__":
     #     import doctest
     #     doctest.testmod(raise_on_error=True)
     test_use_cases = (
+        "/Volumes/dav/色花堂无码无破解/sehuatang/FC2PPV-2736114/15000　その１.mp4",
         "ABP  028女子マネージャーは、僕達の性処理ペット。 028 春咲りょう  uncensored.mp4",
         "ABP  027 uncensored.mp4",
         "Fc2 PPV 1501158 2 3.mp4",

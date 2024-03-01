@@ -939,7 +939,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         # print_files() will use the normalized id from website,
         # but paste_file_to_folder() still use the input raw search id
         # so the solution is: use the normalized search id
-        number = json_data["number"]
+        number = json_data["number"].replace(' ', "_")
     imagecut = json_data.get('imagecut')
     tag = json_data.get('tag')
     # =======================================================================判断-C,-CD后缀

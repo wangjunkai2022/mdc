@@ -125,6 +125,7 @@ def request_session(cookies=None, ua: str = None, retry: int = 3, timeout: int =
 def get_html_by_form(url, form_select: str = None, fields: dict = None, cookies: dict = None, ua: str = None,
                      return_type: str = None, encoding: str = None,
                      retry: int = 3, timeout: int = G_DEFAULT_TIMEOUT, proxies=None, verify=None):
+    requests.DEFAULT_RETRIES = 5
     session = requests.Session()
     if isinstance(cookies, dict) and len(cookies):
         requests.utils.add_dict_to_cookiejar(session.cookies, cookies)
@@ -137,6 +138,7 @@ def get_html_by_form(url, form_select: str = None, fields: dict = None, cookies:
     if proxies:
         session.proxies = proxies
     try:
+        session.keep_alive = False
         browser = mechanicalsoup.StatefulBrowser(user_agent=ua or G_USER_AGENT, session=session)
         result = browser.open(url)
         if not result.ok:
@@ -146,7 +148,7 @@ def get_html_by_form(url, form_select: str = None, fields: dict = None, cookies:
             for k, v in fields.items():
                 browser[k] = v
         response = browser.submit_selected()
-
+        session.close()
         if return_type == "object":
             return response
         elif return_type == "content":
@@ -158,9 +160,11 @@ def get_html_by_form(url, form_select: str = None, fields: dict = None, cookies:
             return response.text
     except requests.exceptions.ProxyError:
         print("[-]get_html_by_form() Proxy error! Please check your Proxy")
+        session.keep_alive = False
         session.close()
     except Exception as e:
         print(f'[-]get_html_by_form() Failed! {e}')
+        session.keep_alive = False
         session.close()
     return None
 
