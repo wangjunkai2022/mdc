@@ -5,6 +5,7 @@ import json
 from .parser import Parser
 import config
 import importlib
+from PIL import Image
 
 
 def search(number, sources: str = None, **kwargs):
@@ -257,4 +258,10 @@ class Scraping:
                 and (data["cover_small"] is None or data["cover_small"] == "" or
                      data["cover_small"] == "null"):
             return False
+        else:
+            try:
+                if data["cover"]:
+                    Image.open(data["cover"])
+            except:
+                return False
         return True

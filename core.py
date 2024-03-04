@@ -316,9 +316,10 @@ def extrafanart_download_threadpool(url_list, save_dir, number, json_data=None):
 
 
 def image_ext(url):
+    conf = config.getInstance()
     try:
-        ext = os.path.splitext(url)[-1]
-        if ext in {'.jpg', '.jpge', '.bmp', '.png', '.gif', ".webp"}:
+        ext = os.path.splitext(url)[-1].lower()
+        if ext in conf.phone_type().lower().split(","):
             return ext
         return ".jpg"
     except:
@@ -939,7 +940,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         # print_files() will use the normalized id from website,
         # but paste_file_to_folder() still use the input raw search id
         # so the solution is: use the normalized search id
-        number = json_data["number"].replace(' ', "_")
+        number = json_data["number"].replace(' ', "-")
     imagecut = json_data.get('imagecut')
     tag = json_data.get('tag')
     # =======================================================================判断-C,-CD后缀

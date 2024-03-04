@@ -40,5 +40,5 @@ class Avcnn(Parser):
         return title
 
     def getCover(self, htmltree):
-        cover = f"https://avcnn.com/{self.number}/Cover.webp"
+        cover = f"https://avcnn.com/video-cover/{self.number}/Cover.webp"
         return cover

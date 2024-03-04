@@ -330,6 +330,9 @@ class Config:
     def sub_rule(self) -> typing.Set[str]:
         return set(self.conf.get('media', 'sub_type').lower().split(','))
 
+    def phone_type(self) -> str:
+        return self.conf.get('media', 'phone_type')
+
     def naming_rule(self) -> str:
         return self.conf.get("Name_Rule", "naming_rule")
 

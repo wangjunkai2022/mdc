@@ -506,8 +506,9 @@ def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC, 
             os.symlink(file_path, os.path.join(conf.failed_folder(), file_name))
         else:
             try:
-                print("[-]Move [{}] to failed folder".format(file_path))
-                shutil.move(file_path, os.path.join(conf.failed_folder(), file_name))
+                if conf.failed_move():
+                    print("[-]Move [{}] to failed folder".format(file_path))
+                    shutil.move(file_path, os.path.join(conf.failed_folder(), file_name))
             except Exception as err:
                 print('[!]', err)
 
