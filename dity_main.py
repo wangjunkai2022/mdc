@@ -21,7 +21,7 @@ suffix_phone = conf.phone_type().lower().split(",")
 
 def main(path):
     exclude = ["extrafanart"]
-    for number in range(435, 500):
+    for number in range(235, 500):
         exclude.append(f"max_folder_50G_{number}")
     # get_file_list(path, run_have_callback, exclude=exclude)
     get_folds_video(path, find_av_notnfo_or_badimg, exclude=exclude)
@@ -74,7 +74,7 @@ def find_av_notnfo_or_badimg(video_file):
 
     if not dity:
         nfo_files.sort(key=len)
-        nfo_new_path = os.path.join(parent_dir, os.path.basename(parent_dir) + ".nfo")
+        nfo_new_path = os.path.join(parent_dir, os.path.basename(parent_dir).lower() + ".nfo")
         nfo_old_path = os.path.join(parent_dir, nfo_files[0])
         if nfo_old_path.lower() != nfo_new_path.lower() and not os.path.exists(nfo_new_path):
             os.rename(nfo_old_path, nfo_new_path)
