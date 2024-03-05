@@ -21,8 +21,8 @@ suffix_phone = conf.phone_type().lower().split(",")
 
 def main(path):
     exclude = ["extrafanart"]
-    # for number in range(400, 500):
-    #     exclude.append(f"max_folder_50G_{number}")
+    for number in range(435, 500):
+        exclude.append(f"max_folder_50G_{number}")
     # get_file_list(path, run_have_callback, exclude=exclude)
     get_folds_video(path, find_av_notnfo_or_badimg, exclude=exclude)
 
@@ -30,8 +30,8 @@ def main(path):
 def find_av_notnfo_or_badimg(video_file):
     parent_dir = os.path.dirname(video_file)
     imgs = []
-    video = []
-    nfo_file = None
+    videos = []
+    nfo_files = []
     # 是否操作
     dity = False
 
@@ -40,21 +40,24 @@ def find_av_notnfo_or_badimg(video_file):
         # print(root, base_name, file)
         for file in files:
             temp_dir = os.path.join(root, file)
+            new_dir = os.path.join(root, file.lower())
             suffix = os.path.splitext(temp_dir)[-1].lower()
             if suffix in suffix_videos:
-                video.append(temp_dir)
+                if file.lower() != file:
+                    os.rename(temp_dir, new_dir)
+                videos.append(new_dir)
                 pass
             elif suffix == ".nfo":
-                if nfo_file:
-                    dity = True
-                else:
-                    nfo_file = file
+                if file.lower() != file:
+                    os.rename(temp_dir, new_dir)
+                nfo_files.append(new_dir)
             elif suffix in suffix_phone:
                 imgs.append(temp_dir)
 
-    if not nfo_file:
-        print(f"{parent_dir} 没有 nfo 文件")
+    if len(nfo_files) < 1:
+        print(f"{parent_dir} nfo 文件有问题{nfo_files}")
         dity = True
+    # elif len(nfo_files) > 1:
 
     count = 0
     for img in imgs:
@@ -70,14 +73,19 @@ def find_av_notnfo_or_badimg(video_file):
         dity = True
 
     if not dity:
-        nfo_name = os.path.splitext(nfo_file)[0]
-        for file in video:
-            if nfo_name in file:
+        nfo_files.sort(key=len)
+        nfo_new_path = os.path.join(parent_dir, os.path.basename(parent_dir) + ".nfo")
+        nfo_old_path = os.path.join(parent_dir, nfo_files[0])
+        if nfo_old_path.lower() != nfo_new_path.lower() and not os.path.exists(nfo_new_path):
+            os.rename(nfo_old_path, nfo_new_path)
+        num = os.path.basename(parent_dir).lower()
+        for video in videos:
+            if num in video.lower():
                 pass
             else:
-                dity = True
-
-    if video_file and dity:
+                print(f"{parent_dir}中 视频文件和文件夹不对 需要查看")
+    if dity:
+        # print(f'nfo 文件和视频文件不匹配——{parent_dir}')
         run_remdc_callback(parent_dir)
 
 
@@ -103,12 +111,12 @@ def run_have_callback(video_file):
 def run_remdc_callback(parent_dir):
     # for root, path, file in os.walk(path):
     #     print(root, path, file)
-    video_file = None
+    video_file = []
     for f in listdir(parent_dir):
         temp_dir = join(parent_dir, f)
         suffix = os.path.splitext(temp_dir)[-1].lower()
         if suffix in suffix_videos:
-            video_file = temp_dir
+            video_file.append(temp_dir)
         elif suffix == ".bif":
             pass
         else:
@@ -119,14 +127,20 @@ def run_remdc_callback(parent_dir):
                     os.remove(temp_dir)
             pass
     time.sleep(5)
+    select_video = ''
+    num = os.path.basename(os.path.dirname(video_file[0]))
+    # if re.search(r"n\d\d\d\d", num) and len(num) == 5:
+    #     num = "TokyoHot-" + num
+    if len(video_file) > 1:
+        print(f"{parent_dir}视频文件不止一个")
+        select_video = os.path.join(parent_dir, num + ".mp4")
+    else:
+        select_video = video_file[0]
     import Movie_Data_Capture
-    num = os.path.basename(os.path.dirname(video_file))
-    if re.search(r"n\d\d\d\d", num) and len(num) == 5:
-        num = "TokyoHot-" + num
     # from number_parser import get_number
     # num = get_number(False, num)
     args = tuple([
-        video_file,
+        select_video,
         f"{num}",
         'log',
         '',
