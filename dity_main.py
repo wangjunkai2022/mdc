@@ -21,10 +21,11 @@ suffix_phone = conf.phone_type().lower().split(",")
 
 def main(path):
     exclude = ["extrafanart"]
-    for number in range(235, 500):
+    for number in range(173, 500):  # 150+没整理
         exclude.append(f"max_folder_50G_{number}")
     # get_file_list(path, run_have_callback, exclude=exclude)
-    get_folds_video(path, find_av_notnfo_or_badimg, exclude=exclude)
+    # get_folds_video(path, find_av_notnfo_or_badimg, exclude=exclude)
+    get_folds_video(path, run_num2video_callback, exclude=exclude)
 
 
 def find_av_notnfo_or_badimg(video_file):
@@ -90,6 +91,31 @@ def find_av_notnfo_or_badimg(video_file):
 
 
 # def nfo_in_video(video_file):
+def run_num2video_callback(video_file):
+    parent_dir = os.path.dirname(video_file)
+    videos = []
+    name_have_hack = False
+    for f in listdir(parent_dir):
+        temp_dir = join(parent_dir, f)
+        suffix = os.path.splitext(temp_dir)[-1].lower()
+        name = os.path.splitext(f)[0].lower()
+        if suffix in suffix_videos:
+            videos.append(temp_dir)
+            if 'hack' in name.lower():
+                name_have_hack = True
+            # video_file = temp_dir
+            # path = parent_dir.replace("/Volumes/dav/色花堂无码无破解", "")
+            # print(path)
+            # loop = asyncio.get_event_loop()
+            # future = asyncio.ensure_future(pikpak_go.run_have_change(path))
+            # loop.run_until_complete(future)
+            # return
+    if len(videos) >= 1 and name_have_hack:
+        path = parent_dir.replace("/Volumes/dav/色花堂无码无破解", "")
+        print(path)
+        loop = asyncio.get_event_loop()
+        future = asyncio.ensure_future(pikpak_go.run_have_change(path))
+        loop.run_until_complete(future)
 
 
 # 文件夹中带有Have的字段则进入直接在pikpak的地方进行重新下载并删除原视频文件。
