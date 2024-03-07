@@ -12,20 +12,72 @@ from PIL import Image
 import config
 from pikpak import PikPak
 
-pikpak_go = PikPak("lopipi9801@giratex.com", "098poi")
 conf = config.getInstance()
+
+pikpak_go = PikPak(conf.pikpak_user(), conf.pikpak_pd())
 # default fetch order list, from the beginning to the end
 suffix_videos = conf.media_type().lower().split(",")
-suffix_phone = conf.phone_type().lower().split(",")
+suffix_photo = conf.photo_type().lower().split(",")
 
 
 def main(path):
     exclude = ["extrafanart"]
-    for number in range(173, 500):  # 150+没整理
-        exclude.append(f"max_folder_50G_{number}")
+    # for number in range(133, 500):  # 150+没整理
+    #     exclude.append(f"max_folder_50G_{number}")
     # get_file_list(path, run_have_callback, exclude=exclude)
     # get_folds_video(path, find_av_notnfo_or_badimg, exclude=exclude)
-    get_folds_video(path, run_num2video_callback, exclude=exclude)
+    # get_folds_video(path, run_num2video_callback, exclude=exclude)
+    # get_folds_video(path, change_video_and_only_cd1, exclude=exclude)
+    get_folds_video(path, superfluous_file, exclude=exclude)
+
+
+def superfluous_file(video_file):
+    parent_dir = os.path.dirname(video_file)
+    superfluous = []
+    not_superfluous = []
+    for path, _, files in os.walk(parent_dir):
+        for file in files:
+            if re.search(r"\(\d\).", file):
+                superfluous.append(os.path.join(path, file))
+            else:
+                not_superfluous.append(os.path.join(path, file))
+
+    if len(superfluous) > 0:
+        path = parent_dir[parent_dir.find(conf.organize_pikpak_path()):]
+        print(superfluous)
+        loop = asyncio.get_event_loop()
+        future = asyncio.ensure_future(pikpak_go.superfluous_file(path))
+        loop.run_until_complete(future)
+
+
+def change_video_and_only_cd1(video_file):
+    parent_dir = os.path.dirname(video_file)
+    videos = []
+    nfos = []
+    name_have_hack = False
+    for f in listdir(parent_dir):
+        temp_dir = join(parent_dir, f)
+        suffix = os.path.splitext(temp_dir)[-1].lower()
+        name = os.path.splitext(f)[0].lower()
+        if suffix in suffix_videos:
+            videos.append(temp_dir)
+            if 'cd1' in name.lower():
+                name_have_hack = True
+        elif 'nfo' in suffix:
+            nfos.append(temp_dir)
+
+    if name_have_hack and len(videos) == 1:
+        path = parent_dir[parent_dir.find(conf.organize_pikpak_path()):]
+        print(f'整理文件{path}')
+        loop = asyncio.get_event_loop()
+        future = asyncio.ensure_future(pikpak_go.change_1video_cd(path))
+        loop.run_until_complete(future)
+    if len(nfos) < 1:
+        path = parent_dir[parent_dir.find(conf.organize_pikpak_path()):]
+        print(f"没有nfo文件{path}")
+        loop = asyncio.get_event_loop()
+        future = asyncio.ensure_future(pikpak_go.run_have_change(path))
+        loop.run_until_complete(future)
 
 
 def find_av_notnfo_or_badimg(video_file):
@@ -52,7 +104,7 @@ def find_av_notnfo_or_badimg(video_file):
                 if file.lower() != file:
                     os.rename(temp_dir, new_dir)
                 nfo_files.append(new_dir)
-            elif suffix in suffix_phone:
+            elif suffix in suffix_photo:
                 imgs.append(temp_dir)
 
     if len(nfo_files) < 1:
@@ -111,7 +163,8 @@ def run_num2video_callback(video_file):
             # loop.run_until_complete(future)
             # return
     if len(videos) >= 1 and name_have_hack:
-        path = parent_dir.replace("/Volumes/dav/色花堂无码无破解", "")
+        # path = parent_dir.replace("/Volumes/dav/色花堂无码无破解", "")
+        path = parent_dir[parent_dir.find(conf.organize_pikpak_path()):]
         print(path)
         loop = asyncio.get_event_loop()
         future = asyncio.ensure_future(pikpak_go.run_have_change(path))
@@ -126,7 +179,8 @@ def run_have_callback(video_file):
         suffix = os.path.splitext(temp_dir)[-1].lower()
         if suffix in suffix_videos and "Have" in temp_dir:
             # video_file = temp_dir
-            path = parent_dir.replace("/Volumes/dav/色花堂无码无破解", "")
+            # path = parent_dir.replace("/Volumes/dav/色花堂无码无破解", "")
+            path = parent_dir[parent_dir.find(conf.organize_pikpak_path()):]
             print(path)
             loop = asyncio.get_event_loop()
             future = asyncio.ensure_future(pikpak_go.run_have_change(path))
@@ -214,7 +268,8 @@ def get_folds_video(parent_dir, callback=print, exclude=[]):
 if __name__ == "__main__":
     print("main")
     # main("/Volumes/dav/色花堂无码无破解/JAV_output/max_folder_50G_298")
-    main("/Volumes/dav/色花堂无码无破解/JAV_output")
+    # main("/Volumes/dav/色花堂无码无破解/JAV_output")
+    main(conf.organize_path())
 
     # name = "x u u 9 2 .c o m.mp4"
     # name = 'u u r 9 3.c om'

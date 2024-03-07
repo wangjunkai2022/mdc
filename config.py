@@ -330,8 +330,8 @@ class Config:
     def sub_rule(self) -> typing.Set[str]:
         return set(self.conf.get('media', 'sub_type').lower().split(','))
 
-    def phone_type(self) -> str:
-        return self.conf.get('media', 'phone_type')
+    def photo_type(self) -> str:
+        return self.conf.get('media', 'photo_type')
 
     def naming_rule(self) -> str:
         return self.conf.get("Name_Rule", "naming_rule")
@@ -452,6 +452,32 @@ class Config:
 
     def download_actor_photo_for_kodi(self) -> bool:
         return self.conf.getboolean("actor_photo", "download_for_kodi", fallback=False)
+
+    # pikpak_user
+    def pikpak_user(self) -> str:
+        return self.conf.get("organize", "pikpak_user", fallback="")
+
+    # pikpak_密码
+    def pikpak_pd(self) -> str:
+        return self.conf.get("organize", "pikpak_pd", fallback="")
+
+    def organize_path(self) -> str:
+        return self.conf.get("organize", "organize_path", fallback="")
+
+    def organize_pikpak_path(self) -> str:
+        return self.conf.get("organize", "pikpak_path", fallback="")
+
+    def organize_alist_path(self) -> str:
+        return self.conf.get("organize", "alist_path", fallback="")
+
+    def organize_alist_domain(self) -> str:
+        return self.conf.get("organize", "alist_domain", fallback="")
+
+    def organize_alist_user(self) -> str:
+        return self.conf.get("organize", "alist_user", fallback="")
+
+    def organize_alist_pd(self) -> str:
+        return self.conf.get("organize", "alist_pd", fallback="")
 
     @staticmethod
     def _exit(sec: str) -> None:
@@ -596,6 +622,16 @@ class Config:
         conf.add_section(sec20)
         conf.set(sec20, "download_for_kodi", "0")
 
+        sec21 = "organize"
+        conf.add_section(sec21)
+        conf.set(sec21, "pikpak_user", "")
+        conf.set(sec21, "pikpak_pd", "")
+        conf.set(sec21, "organize_path", "./")
+        conf.set(sec21, "pikpak_path", "")
+        conf.set(sec21, "alist_path", "")
+        conf.set(sec21, "alist_domain", "")
+        conf.set(sec21, "alist_user", "")
+        conf.set(sec21, "alist_pd", "")
         return conf
 
 

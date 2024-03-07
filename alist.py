@@ -1,13 +1,16 @@
 import asyncio
 import httpx
 import json
+import config
 
-user = 'admin'
-password = "''''"
+conf = config.getInstance()
+
+user = conf.organize_alist_user()
+password = conf.organize_alist_pd()
 token = ''
 proxy = None
 
-domain = "http://localhost:5244"
+domain = conf.organize_alist_domain()
 
 
 async def update_all(path):

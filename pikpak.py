@@ -1,10 +1,15 @@
 import os
 import re
 import subprocess
-
+import config
 import time
 from pikpakapi import PikPakApi, DownloadStatus
 import asyncio
+import alist
+
+conf = config.getInstance()
+suffix_videos = conf.media_type().lower().split(",")
+suffix_photo = conf.photo_type().lower().split(",")
 
 
 class PikPak():
@@ -20,13 +25,74 @@ class PikPak():
         self.client = PikPakApi(self.user, self.password)
         await self.client.login()
 
-    async def change(self):
+    async def check(self):
         if not self.client:
             await self.content()
 
-    # 这里的path是pikpak中的路径 不是本地映射的路径
-    async def run_have_change(self, path):
-        await self.change()
+    async def superfluous_file(self, path):
+        await self.check()
+        nfos = await self.get_path_all_file_extensions(path, ".nfo")
+        photos = await self.get_path_all_phone(path)
+        for file in nfos:
+            name = file.get("name").replace(file.get("file_extension"), '')
+            if re.search(r"\(\d\)", name):
+                new_name = re.sub(r"\(\d\)", "", name)
+                IsHave = False
+                for _file in nfos:
+                    if file == _file:
+                        pass
+                    else:
+                        if new_name == _file.get("name").replace(_file.get("file_extension"), ''):
+                            IsHave = True
+                            break
+                if IsHave:
+                    print(f"{name}存在{new_name} 这里直接删除")
+                    await self.client.delete_forever(ids=[file.get("id")])
+                    await asyncio.sleep(1)
+                    await self.superfluous_file(path)
+                    await alist.update_all(conf.organize_alist_path() + path)
+                    return
+                else:
+                    print(f"{name}不{new_name}重命名")
+                    await self.client.file_rename(file.get("id"), new_name + file.get("file_extension"))
+
+        for file in photos:
+            name = file.get("name").replace(file.get("file_extension"), '')
+            if re.search(r"\(\d\)", name):
+                new_name = re.sub(r"\(\d\)", "", name)
+                IsHave = False
+                for _file in photos:
+                    if file == _file:
+                        pass
+                    else:
+                        if new_name == _file.get("name").replace(_file.get("file_extension"), ''):
+                            IsHave = True
+                            break
+                if IsHave:
+                    print(f"{name}存在{new_name} 这里直接删除")
+                    await self.client.delete_forever(ids=[file.get("id")])
+                    await asyncio.sleep(1)
+                    await self.superfluous_file(path)
+                    await alist.update_all(conf.organize_alist_path() + path)
+                    return
+                else:
+                    print(f"{name}不{new_name}重命名")
+                    await self.client.file_rename(file.get("id"), new_name + file.get("file_extension"))
+
+        await alist.update_all(conf.organize_alist_path() + path)
+
+    async def change_1video_cd(self, path):
+        await self.check()
+        pikpak_videos = await self.get_path_all_video(path)
+        for video in pikpak_videos:
+            await self.client.file_rename(video.get("id"), video.get("name").replace("-cd1", '').replace("-CD1", ""))
+            await asyncio.sleep(1)
+            await alist.update_all(conf.organize_alist_path() + path)
+            await asyncio.sleep(1)
+
+    # 获取文件夹名字 如果传入的地址是文件夹这返回此文件夹如果是文件 这返回此文件所在的文件夹
+    async def get_dir(self, path):
+        await self.check()
         pikpak_paths = await self.client.path_to_id(path)
         pikpak_parent_path = pikpak_paths[len(pikpak_paths) - 2]
         pikpak_file_path = pikpak_paths[len(pikpak_paths) - 1]
@@ -35,17 +101,49 @@ class PikPak():
                 pikpak_parent_path = pikpak_
                 break
             pass
+        return pikpak_parent_path
 
-        all_parent_files = await self.client.file_list(parent_id=pikpak_parent_path.get("id"))
-        nfo_files = []
-        old_videos = []
+    # 获取文件夹下所有的图片文件
+    async def get_path_all_phone(self, path):
+        pikpak_dir = await self.get_dir(path)
+        all_parent_files = await self.client.file_list(parent_id=pikpak_dir.get("id"))
+        pikpak_photo = []
         for file in all_parent_files.get("files"):
-            if "nfo" in file.get("name"):
-                nfo_files.append(file)
-            elif "mp4" in file.get("name"):
-                old_videos.append(file)
-                if pikpak_file_path.get("file_type") == "folder":
-                    pikpak_file_path = file
+            if file.get("kind") == "drive#file":
+                if file.get("file_extension") in suffix_photo:
+                    pikpak_photo.append(file)
+        return pikpak_photo
+
+    # 获取文件夹下所有的视频文件
+    async def get_path_all_video(self, path):
+        pikpak_dir = await self.get_dir(path)
+        all_parent_files = await self.client.file_list(parent_id=pikpak_dir.get("id"))
+        pikpak_videos = []
+        for file in all_parent_files.get("files"):
+            if file.get("kind") == "drive#file":
+                if file.get("file_extension") in suffix_videos:
+                    pikpak_videos.append(file)
+        return pikpak_videos
+
+    # 获取文件夹下所有后缀为extension的文件
+    async def get_path_all_file_extensions(self, path, extension=""):
+        pikpak_dir = await self.get_dir(path)
+        all_parent_files = await self.client.file_list(parent_id=pikpak_dir.get("id"))
+        pikpak_extension = []
+        for file in all_parent_files.get("files"):
+            if file.get("kind") == "drive#file":
+                if extension in file.get("file_extension"):
+                    pikpak_extension.append(file)
+        return pikpak_extension
+
+    # 这里的path是pikpak中的路径 不是本地映射的路径
+    async def run_have_change(self, path):
+        await self.check()
+        pikpak_parent_path = await self.get_dir(path)
+        all_parent_files = await self.client.file_list(parent_id=pikpak_parent_path.get("id"))
+        nfo_files = await self.get_path_all_file_extensions(path, ".nfo")
+        old_videos = await self.get_path_all_video(path)
+        pikpak_file_path = old_videos[0]
 
         nfo_name = pikpak_parent_path.get("name")
         nfo_files.sort(key=len)
@@ -61,12 +159,11 @@ class PikPak():
             pass
         elif len(nfo_files) == 0:
             await asyncio.sleep(10)
-            import alist
             # p = subprocess.Popen(cmd, shell=True,env=)
             # return_code = p.wait()
             import Movie_Data_Capture
             # path_new = re.sub(r"_Have\d", "", path)
-            await alist.update_all("/色花堂无码无破解/" + path)
+            await alist.update_all(conf.organize_alist_path() + path)
 
             if os.path.isdir(path):
                 num = os.path.dirname(path)
@@ -75,7 +172,8 @@ class PikPak():
             path_new = os.path.join(path, num)
             # num = pikpak_parent_path.get('name')
             args = tuple([
-                f"/Volumes/dav/色花堂无码无破解{path_new}",
+                # f"/Volumes/dav/色花堂无码无破解{path_new}",
+                f"{conf.organize_path().replace(conf.organize_pikpak_path(), '')}" + path_new,
                 f"{num}",
                 'log',
                 '',
@@ -162,7 +260,10 @@ class PikPak():
             videos.sort(key=lambda element: element['name'])
             count = 1
             for video in videos:
-                await self.client.file_rename(video.get("id"), f"{nfo_name}-cd{count}.mp4")
+                if len(videos) > 1:
+                    await self.client.file_rename(video.get("id"), f"{nfo_name}-cd{count}.mp4")
+                else:
+                    await self.client.file_rename(video.get("id"), f"{nfo_name}.mp4")
                 await asyncio.sleep(1)
                 count += 1
             for video in old_videos:
@@ -182,6 +283,5 @@ class PikPak():
             #     file_id,
             # ])
             # print(delete)
-        import alist
-        await alist.update_all("/色花堂无码无破解/" + path)
+        await alist.update_all(conf.organize_alist_path() + path)
         await asyncio.sleep(2)

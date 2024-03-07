@@ -319,7 +319,7 @@ def image_ext(url):
     conf = config.getInstance()
     try:
         ext = os.path.splitext(url)[-1].lower()
-        if ext in conf.phone_type().lower().split(","):
+        if ext in conf.photo_type().lower().split(","):
             return ext
         return ".jpg"
     except:
