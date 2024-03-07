@@ -50,11 +50,15 @@ class PikPak():
                     await self.client.delete_forever(ids=[file.get("id")])
                     await asyncio.sleep(1)
                     await self.superfluous_file(path)
-                    await alist.update_all(conf.organize_alist_path() + path)
+                    # await alist.update_all(conf.organize_alist_path() + path)
                     return
+
                 else:
                     print(f"{name}不{new_name}重命名")
                     await self.client.file_rename(file.get("id"), new_name + file.get("file_extension"))
+                    await asyncio.sleep(1)
+                    await self.superfluous_file(path)
+                    return
 
         for file in photos:
             name = file.get("name").replace(file.get("file_extension"), '')
@@ -73,11 +77,15 @@ class PikPak():
                     await self.client.delete_forever(ids=[file.get("id")])
                     await asyncio.sleep(1)
                     await self.superfluous_file(path)
-                    await alist.update_all(conf.organize_alist_path() + path)
+                    # await alist.update_all(conf.organize_alist_path() + path)
                     return
+
                 else:
                     print(f"{name}不{new_name}重命名")
                     await self.client.file_rename(file.get("id"), new_name + file.get("file_extension"))
+                    await asyncio.sleep(1)
+                    await self.superfluous_file(path)
+                    return
 
         await alist.update_all(conf.organize_alist_path() + path)
 

@@ -22,8 +22,8 @@ suffix_photo = conf.photo_type().lower().split(",")
 
 def main(path):
     exclude = ["extrafanart"]
-    # for number in range(133, 500):  # 150+没整理
-    #     exclude.append(f"max_folder_50G_{number}")
+    for number in range(369, 500):  # 150+没整理
+        exclude.append(f"max_folder_50G_{number}")
     # get_file_list(path, run_have_callback, exclude=exclude)
     # get_folds_video(path, find_av_notnfo_or_badimg, exclude=exclude)
     # get_folds_video(path, run_num2video_callback, exclude=exclude)
