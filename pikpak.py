@@ -29,10 +29,43 @@ class PikPak():
         if not self.client:
             await self.content()
 
+    async def organize_nfo(self, path):
+        await self.check()
+        nfos = await self.get_path_all_file_extensions(path, ".nfo")
+        nfos.sort(key=self.pikpak_size_sort_key, reverse=True)
+        dir_name = await self.get_dir(path)
+        videos = await self.get_path_all_video(path)
+        videos.sort(key=self.pikpak_name_sort_key)
+        count = 0
+        for video in videos:
+            count += 1
+            if not (dir_name.get("name").lower() in video.get("name")):
+                new_video_name = ""
+                if len(videos) == 1:
+                    new_video_name = dir_name.get("name") + video.get("file_extension")
+                else:
+                    new_video_name = dir_name.get("name") + f"-cd{count}" + video.get("file_extension")
+                await self.client.file_rename(video.get("id"), new_video_name.lower())
+
+        for index in range(1, len(nfos)):
+            await self.client.delete_forever(ids=[nfos[index].get("id")])
+        nfo_name = dir_name.get("name") + nfos[0].get("file_extension")
+        if nfo_name.lower() != nfos[0].get("name"):
+            await self.client.file_rename(nfos[0].get("id"), nfo_name.lower())
+        await alist.update_all(conf.organize_alist_path() + path)
+
+    def pikpak_size_sort_key(self, element):
+        return element.get("size")
+
+    def pikpak_name_sort_key(self, element):
+        return element.get("name")
+
     async def superfluous_file(self, path):
         await self.check()
         nfos = await self.get_path_all_file_extensions(path, ".nfo")
+        nfos.sort(key=self.pikpak_size_sort_key, reverse=True)
         photos = await self.get_path_all_phone(path)
+        photos.sort(key=self.pikpak_size_sort_key, reverse=True)
         for file in nfos:
             name = file.get("name").replace(file.get("file_extension"), '')
             if re.search(r"\(\d\)", name):
@@ -42,7 +75,7 @@ class PikPak():
                     if file == _file:
                         pass
                     else:
-                        if new_name == _file.get("name").replace(_file.get("file_extension"), ''):
+                        if new_name.lower() == _file.get("name").replace(_file.get("file_extension"), '').lower():
                             IsHave = True
                             break
                 if IsHave:

@@ -22,13 +22,52 @@ suffix_photo = conf.photo_type().lower().split(",")
 
 def main(path):
     exclude = ["extrafanart"]
-    for number in range(369, 500):  # 150+没整理
+    for number in range(389, 500):  # 150+没整理
         exclude.append(f"max_folder_50G_{number}")
     # get_file_list(path, run_have_callback, exclude=exclude)
     # get_folds_video(path, find_av_notnfo_or_badimg, exclude=exclude)
     # get_folds_video(path, run_num2video_callback, exclude=exclude)
     # get_folds_video(path, change_video_and_only_cd1, exclude=exclude)
-    get_folds_video(path, superfluous_file, exclude=exclude)
+    # get_folds_video(path, superfluous_file, exclude=exclude)
+    get_folds_video(path, size_less_than_1k, exclude=exclude)
+
+
+def size_less_than_1k(video_file):
+    parent_dir = os.path.dirname(video_file)
+    nfos = []
+    videos = []
+    for path, _, files in os.walk(parent_dir):
+        for file in files:
+            file_all = os.path.join(path, file)
+            suffix = os.path.splitext(file)[-1]
+            if ".nfo" in suffix:
+                nfos.append(file_all)
+            elif suffix in suffix_videos:
+                videos.append(file_all)
+
+    if len(nfos) > 0:
+        path = parent_dir[parent_dir.find(conf.organize_pikpak_path()):]
+        print(nfos)
+        loop = asyncio.get_event_loop()
+        future = asyncio.ensure_future(pikpak_go.organize_nfo(path))
+        loop.run_until_complete(future)
+    # pre_delete = []
+    # if len(nfos) > 1:
+    #     for file in nfos:
+    #         name = os.path.basename(file)
+    #         file_names = os.path.splitext(name)
+    #         is_video_nfo = False
+    #         for video in videos:
+    #             video_name = os.path.basename(video)
+    #             video_names = os.path.splitext(video_name)
+    #             if file_names[0] in video_names[0]:
+    #                 is_video_nfo = True
+    #         if not is_video_nfo:
+    #             pre_delete.append(file)
+    # 
+    # if len(pre_delete) < len(nfos):
+    #     for file in pre_delete:
+    #         os.remove(file)
 
 
 def superfluous_file(video_file):
