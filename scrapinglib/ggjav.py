@@ -23,8 +23,9 @@ class Ggjav(Parser):
         if self.htmlcode == 404:
             return 404
         htmltree = lxml.html.fromstring(self.htmlcode)
+        
         href = self.getTreeElement(htmltree,
-                                   '//div[@class="columns large-3 medium-6 small-12 item float-left"]/a/@href',
+                                   '//div[starts-with(@class,"columns large-3 medium-6 small-12 item float-left")]/a/@href'
                                    # '//div[starts-with(@class,columns)]'
                                    )
         if not href or href == '':
