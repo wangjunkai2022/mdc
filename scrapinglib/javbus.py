@@ -8,8 +8,9 @@ from lxml import etree
 from urllib.parse import urljoin
 from .parser import Parser
 
+
 class Javbus(Parser):
-    
+
     source = 'javbus'
 
     expr_number = '/html/head/meta[@name="keywords"]/@content'
@@ -30,6 +31,31 @@ class Javbus(Parser):
     expr_tags = '/html/head/meta[@name="keywords"]/@content'
     expr_uncensored = '//*[@id="navbar"]/ul[1]/li[@class="active"]/a[contains(@href,"uncensored")]'
 
+    def extraInit(self):
+        # self.cookies = {
+        #     "existmag": "mag",
+        #     "PHPSESSID": "ttuf5j6544um520a0pfvkhj0d6",
+        # }
+
+        self.extraheader = {
+            # "cookie": "existmag=mag; PHPSESSID=ttuf5j6544um520a0pfvkhj0d6",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            'accept-encoding': 'gzip, deflate, br, zstd',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'cache-control': 'no-cache',
+            'pragma': 'no-cache',
+            'priority': 'u=0, i',
+            'sec-ch-ua': '"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-fetch-dest': 'document',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-site': 'none',
+            'sec-fetch-user': '?1',
+            'upgrade-insecure-requests': '1',
+
+
+        }
+
     def search(self, number):
         self.number = number
         try:
@@ -47,12 +73,12 @@ class Javbus(Parser):
                     'cdnbus.fun',
                     'dmmbus.fun', 'dmmsee.fun',
                     'seedmm.fun',
-                    ]) + "/"
+                ]) + "/"
                 self.detailurl = mirror_url + number
                 self.htmlcode = self.getHtml(self.detailurl)
             if self.htmlcode == 404:
                 return 404
-            htmltree = etree.fromstring(self.htmlcode,etree.HTMLParser())
+            htmltree = etree.fromstring(self.htmlcode, etree.HTMLParser())
             result = self.dictformat(htmltree)
             return result
         except:
@@ -91,18 +117,18 @@ class Javbus(Parser):
             return self.getTreeElement(htmltree, self.expr_studio)
 
     def getCover(self, htmltree):
-        return urljoin("https://www.javbus.com", super().getCover(htmltree)) 
+        return urljoin("https://www.javbus.com", super().getCover(htmltree))
 
     def getRuntime(self, htmltree):
         return super().getRuntime(htmltree).strip(" ['']分鐘")
 
     def getActors(self, htmltree):
         actors = super().getActors(htmltree)
-        b=[]
+        b = []
         for i in actors:
             b.append(i.attrib['title'])
         return b
-    
+
     def getActorPhoto(self, htmltree):
         actors = self.getTreeAll(htmltree, self.expr_actorphoto)
         d = {}
@@ -135,6 +161,6 @@ class Javbus(Parser):
             if any(caller for caller in inspect.stack() if os.path.basename(caller.filename) == 'airav.py'):
                 return ''   # 从airav.py过来的调用不计算outline直接返回，避免重复抓取数据拖慢处理速度
             from .storyline import getStoryline
-            return getStoryline(self.number , uncensored = self.uncensored,
+            return getStoryline(self.number, uncensored=self.uncensored,
                                 proxies=self.proxies, verify=self.verify)
         return ''

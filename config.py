@@ -74,13 +74,15 @@ class Config:
                 res_path = Path(__file__).resolve().parent / 'config.ini'
             if res_path is None:
                 os._exit(2)
-            ins = input("Or, Do you want me create a config file for you? (Yes/No)[Y]:")
+            ins = input(
+                "Or, Do you want me create a config file for you? (Yes/No)[Y]:")
             if re.search('n', ins, re.I):
                 os._exit(2)
             # 用户目录才确定具有写权限，因此选择 ~/mdc.ini 作为配置文件生成路径，而不是有可能并没有写权限的
             # 当前目录。目前版本也不再鼓励使用当前路径放置配置文件了，只是作为多配置文件的切换技巧保留。
             write_path = path_search_order[2]  # Path.home() / "mdc.ini"
-            write_path.write_text(res_path.read_text(encoding='utf-8'), encoding='utf-8')
+            write_path.write_text(res_path.read_text(
+                encoding='utf-8'), encoding='utf-8')
             print("Config file '{}' created.".format(write_path.resolve()))
             input("Press Enter key exit...")
             os._exit(0)
@@ -138,9 +140,11 @@ class Config:
                 err_exit(
                     f"[-]Config override syntax incorrect. example: 'd:s=1' or 'debug_mode:switch=1'. cmd='{cmd}' all='{option_cmd}'")
             if not len(sec_lo):
-                err_exit(f"[-]Config override Section name '{sec}' is empty! cmd='{cmd}'")
+                err_exit(
+                    f"[-]Config override Section name '{sec}' is empty! cmd='{cmd}'")
             if not len(key_lo):
-                err_exit(f"[-]Config override Key name '{key}' is empty! cmd='{cmd}'")
+                err_exit(
+                    f"[-]Config override Key name '{key}' is empty! cmd='{cmd}'")
             if not len(val.strip()):
                 print(f"[!]Conig overide value '{val}' is empty! cmd='{cmd}'")
             sec_name = None
@@ -152,7 +156,8 @@ class Config:
                         f"[-]Conig overide Section short name '{sec_lo}' is not unique! dup1='{sec_name}' dup2='{s}' cmd='{cmd}'")
                 sec_name = s
             if sec_name is None:
-                err_exit(f"[-]Conig overide Section name '{sec}' not found! cmd='{cmd}'")
+                err_exit(
+                    f"[-]Conig overide Section name '{sec}' not found! cmd='{cmd}'")
             key_name = None
             keys = self.conf[sec_name]
             for k in keys:
@@ -163,11 +168,13 @@ class Config:
                         f"[-]Conig overide Key short name '{key_lo}' is not unique! dup1='{key_name}' dup2='{k}' cmd='{cmd}'")
                 key_name = k
             if key_name is None:
-                err_exit(f"[-]Conig overide Key name '{key}' not found! cmd='{cmd}'")
+                err_exit(
+                    f"[-]Conig overide Key name '{key}' not found! cmd='{cmd}'")
             if assign == "+=":
                 val = keys[key_name] + val
             if self.debug():
-                print(f"[!]Set config override [{sec_name}]{key_name}={val}  by cmd='{cmd}'")
+                print(
+                    f"[!]Set config override [{sec_name}]{key_name}={val}  by cmd='{cmd}'")
             self.conf.set(sec_name, key_name, val)
 
     def main_mode(self) -> int:
@@ -175,6 +182,9 @@ class Config:
             return self.conf.getint("common", "main_mode")
         except ValueError:
             self._exit("common:main_mode")
+
+    def video_type(self) -> str:
+        return self.conf.get("video_type", "type")
 
     def source_folder(self) -> str:
         return self.conf.get("common", "source_folder").replace("\\\\", "/").replace("\\", "/")
@@ -192,7 +202,8 @@ class Config:
         return self.conf.getint("common", "link_mode")
 
     def scan_hardlink(self) -> bool:
-        return self.conf.getboolean("common", "scan_hardlink", fallback=False)  # 未找到配置选项,默认不刮削
+        # 未找到配置选项,默认不刮削
+        return self.conf.getboolean("common", "scan_hardlink", fallback=False)
 
     def failed_move(self) -> bool:
         return self.conf.getboolean("common", "failed_move")
@@ -282,7 +293,8 @@ class Config:
 
     def get_extrafanart(self):
         try:
-            extrafanart_download = self.conf.get("extrafanart", "extrafanart_folder")
+            extrafanart_download = self.conf.get(
+                "extrafanart", "extrafanart_folder")
             return extrafanart_download
         except ValueError:
             self._exit("extrafanart_folder")
@@ -540,7 +552,8 @@ class Config:
 
         sec6 = "priority"
         conf.add_section(sec6)
-        conf.set(sec6, "website", "airav,javbus,javdb,fanza,xcity,mgstage,fc2,fc2club,avsox,jav321,xcity")
+        conf.set(sec6, "website",
+                 "airav,javbus,javdb,fanza,xcity,mgstage,fc2,fc2club,avsox,jav321,xcity")
 
         sec7 = "escape"
         conf.add_section(sec7)
@@ -601,7 +614,8 @@ class Config:
         sec16 = "cc_convert"
         conf.add_section(sec16)
         conf.set(sec16, "mode", "1")
-        conf.set(sec16, "vars", "actor,director,label,outline,series,studio,tag,title")
+        conf.set(sec16, "vars",
+                 "actor,director,label,outline,series,studio,tag,title")
 
         sec17 = "javdb"
         conf.add_section(sec17)
@@ -666,7 +680,8 @@ class IniProxy():
                 proxies = {"http": self.proxytype + "://" + self.address,
                            "https": self.proxytype + "://" + self.address}
             else:
-                proxies = {"http": "http://" + self.address, "https": "https://" + self.address}
+                proxies = {"http": "http://" + self.address,
+                           "https": "https://" + self.address}
         else:
             proxies = {}
 
@@ -678,9 +693,9 @@ if __name__ == "__main__":
         code = compile(evstr, "<string>", "eval")
         print('{}: "{}"'.format(evstr, eval(code)))
 
-
     config = Config()
-    mfilter = {'conf', 'proxy', '_exit', '_default_config', 'ini_path', 'set_override'}
+    mfilter = {'conf', 'proxy', '_exit',
+               '_default_config', 'ini_path', 'set_override'}
     for _m in [m for m in dir(config) if not m.startswith('__') and m not in mfilter]:
         evprint(f'config.{_m}()')
     pfilter = {'proxies', 'SUPPORT_PROXY_TYPE'}

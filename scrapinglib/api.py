@@ -2,6 +2,8 @@
 
 import re
 import json
+
+import requests
 from .parser import Parser
 import config
 import importlib
@@ -23,6 +25,7 @@ def getSupportedSources(tag='adult'):
     """
     :param tag: `adult`, `general`
     """
+    tag = config.getInstance().video_type()
     sc = Scraping()
     if tag == 'adult':
         return ','.join(sc.adult_full_sources)
@@ -36,7 +39,7 @@ class Scraping:
     adult_full_sources = ['javlibrary', 'javdb', 'javbus', 'airav', 'fanza', 'xcity', 'jav321',
                           'mgstage', 'fc2', 'avsox', 'dlsite', 'carib', 'madou', 'msin',
                           'getchu', 'gcolle', 'javday', 'pissplay', 'javmenu', 'pcolle', 'caribpr',
-                          "javbit", "ggjav", "avcnn", 'missav',
+                          "javbit", "ggjav", "avcnn", 'missav', 'heydouga',
                           ]
 
     general_full_sources = ['tmdb', 'imdb']
@@ -53,7 +56,7 @@ class Scraping:
     # 使用storyline方法进一步获取故事情节
     morestoryline = False
 
-    def search(self, number, sources=None, proxies=None, verify=None, type='adult',
+    def search(self, number, sources=None, proxies=None, verify=None, type=config.getInstance().video_type(),
                specifiedSource=None, specifiedUrl=None,
                dbcookies=None, dbsite=None, morestoryline=False,
                debug=False):
@@ -84,7 +87,8 @@ class Scraping:
                 if self.debug:
                     print('[+]select', source)
                 try:
-                    module = importlib.import_module('.' + source, 'scrapinglib')
+                    module = importlib.import_module(
+                        '.' + source, 'scrapinglib')
                     parser_type = getattr(module, source.capitalize())
                     parser: Parser = parser_type()
                     data = parser.scrape(name, self)
@@ -97,7 +101,8 @@ class Scraping:
                 # if any service return a valid return, break
                 if self.get_data_state(json_data):
                     if self.debug:
-                        print(f"[+]Find movie [{name}] metadata on website '{source}'")
+                        print(
+                            f"[+]Find movie [{name}] metadata on website '{source}'")
                     break
             except:
                 continue
@@ -129,7 +134,8 @@ class Scraping:
                 if self.debug:
                     print('[+]select', source)
                 try:
-                    module = importlib.import_module('.' + source, 'scrapinglib')
+                    module = importlib.import_module(
+                        '.' + source, 'scrapinglib')
                     parser_type = getattr(module, source.capitalize())
                     parser: Parser = parser_type()
                     data = parser.scrape(number, self)
@@ -143,7 +149,8 @@ class Scraping:
                 # if any service return a valid return, break
                 if self.get_data_state(json_data):
                     if self.debug:
-                        print(f"[+]Find movie [{number}] metadata on website '{source}'")
+                        print(
+                            f"[+]Find movie [{number}] metadata on website '{source}'")
                     break
             except:
                 continue
@@ -158,7 +165,8 @@ class Scraping:
                 if other_json_data is not None and 'cover' in other_json_data and other_json_data['cover'] != '':
                     json_data['cover'] = other_json_data['cover']
                     if self.debug:
-                        print(f"[+]Find movie [{number}] cover on website '{other_json_data['cover']}'")
+                        print(
+                            f"[+]Find movie [{number}] cover on website '{other_json_data['cover']}'")
             except:
                 pass
 
@@ -228,7 +236,8 @@ class Scraping:
                 sources = insert(sources, "gcolle")
             elif re.search(r"^\d{5,}", file_number) or \
                     (re.search(r"^\d{6}-\d{3}", file_number)) or "heyzo" in lo_file_number:
-                sources = ["avsox", "carib", "caribpr", "javbus", "xcity", "javdb"]
+                sources = ["avsox", "carib", "caribpr",
+                           "javbus", "xcity", "javdb"]
             elif re.search(r"^[a-z0-9]{3,}$", lo_file_number):
                 if "xcity" in sources:
                     sources = insert(sources, "xcity")
@@ -258,10 +267,29 @@ class Scraping:
                 and (data["cover_small"] is None or data["cover_small"] == "" or
                      data["cover_small"] == "null"):
             return False
-        else:
-            try:
-                if data["cover"]:
-                    Image.open(data["cover"])
-            except:
-                return False
+        # else:
+        #     try:
+        #         if data["cover"]:
+        #             return self.check_image_url(data["cover"])
+        #     except:
+        #         return False
         return True
+
+    def check_image_url(self, url):
+        try:
+            response = requests.get(url, timeout=10)
+            # 检查响应状态码
+            if response.status_code == 200:
+                # 可选：检查内容类型是否为图像
+                if 'image' in response.headers['Content-Type']:
+                    return True
+                else:
+                    print("URL is reachable but not an image.")
+                    return False
+            else:
+                print(
+                    f"Failed to download image. Status code: {response.status_code}")
+                return False
+        except requests.exceptions.RequestException as e:
+            print(f"Error occurred: {e}")
+            return False

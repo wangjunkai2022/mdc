@@ -12,8 +12,11 @@ class Missav(Parser):
     expr_cover = '//div[@class="plyr__poster"/'
     expr_cover2 = ''
 
+    expr_title = "//h1[@class='text-base lg:text-lg text-nord6']/text()"
+
     def search(self, number):
-        self.number = number.lower().replace('fc2-', 'fc2-ppv-').replace('fc2ppv-', 'fc2-ppv-')
+        self.number = number.lower().replace(
+            'fc2-', 'fc2-ppv-').replace('fc2ppv-', 'fc2-ppv-')
         if self.specifiedUrl:
             self.detailurl = self.specifiedUrl
         else:
@@ -29,7 +32,10 @@ class Missav(Parser):
         return self.getTreeElement(htmltree, self.expr_number, 1)
 
     def getTitle(self, htmltree):
-        return self.getTreeElement(htmltree, self.expr_number, 2).replace("＆quot", "_")
+        title = self.getTreeElement(
+            htmltree, self.expr_number, 2).replace("＆quot", "_")
+        if not title or title == '':
+            return self.getNum()
 
     def getYear(self, htmltree):
         return self.getTreeElement(htmltree, self.expr_number, 0)

@@ -53,7 +53,7 @@ def get_stream(url, cookies: dict = None, ua: str = None, return_type: str = Non
                                       cookies=cookies, stream=True)
             else:
                 result = requests.get(str(url), headers=headers, timeout=config_proxy.timeout, cookies=cookies,
-                                      stream=True)
+                                      stream=True, verify=False)
 
             return result
         except Exception as e:
@@ -93,7 +93,8 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None,
                                       verify=verify,
                                       cookies=cookies)
             else:
-                result = requests.get(str(url), headers=headers, timeout=config_proxy.timeout, cookies=cookies)
+                result = requests.get(
+                    str(url), headers=headers, timeout=config_proxy.timeout, cookies=cookies)
 
             if return_type == "object":
                 return result
@@ -131,9 +132,11 @@ def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
         try:
             if config_proxy.enable:
                 proxies = config_proxy.proxies()
-                result = requests.post(url, data=query, proxies=proxies, headers=headers, timeout=config_proxy.timeout)
+                result = requests.post(
+                    url, data=query, proxies=proxies, headers=headers, timeout=config_proxy.timeout)
             else:
-                result = requests.post(url, data=query, headers=headers, timeout=config_proxy.timeout)
+                result = requests.post(
+                    url, data=query, headers=headers, timeout=config_proxy.timeout)
             return result
         except Exception as e:
             print("[-]Connect retry {}/{}".format(i + 1, config_proxy.retry))
@@ -171,8 +174,10 @@ def get_html_session(url: str = None, cookies: dict = None, ua: str = None, retu
         requests.utils.add_dict_to_cookiejar(session.cookies, cookies)
     retries = Retry(total=config_proxy.retry, connect=config_proxy.retry, backoff_factor=1,
                     status_forcelist=[429, 500, 502, 503, 504])
-    session.mount("https://", TimeoutHTTPAdapter(max_retries=retries, timeout=config_proxy.timeout))
-    session.mount("http://", TimeoutHTTPAdapter(max_retries=retries, timeout=config_proxy.timeout))
+    session.mount("https://", TimeoutHTTPAdapter(max_retries=retries,
+                  timeout=config_proxy.timeout))
+    session.mount("http://", TimeoutHTTPAdapter(max_retries=retries,
+                  timeout=config_proxy.timeout))
     if config_proxy.enable:
         session.verify = config.getInstance().cacert_file()
         session.proxies = config_proxy.proxies()
@@ -206,18 +211,22 @@ def get_html_session(url: str = None, cookies: dict = None, ua: str = None, retu
 def get_html_by_browser(url: str = None, cookies: dict = None, ua: str = None, return_type: str = None,
                         encoding: str = None, use_scraper: bool = False):
     config_proxy = config.getInstance().proxy()
-    s = create_scraper(browser={'custom': ua or G_USER_AGENT, }) if use_scraper else requests.Session()
+    s = create_scraper(browser={'custom': ua or G_USER_AGENT, }
+                       ) if use_scraper else requests.Session()
     if isinstance(cookies, dict) and len(cookies):
         requests.utils.add_dict_to_cookiejar(s.cookies, cookies)
     retries = Retry(total=config_proxy.retry, connect=config_proxy.retry, backoff_factor=1,
                     status_forcelist=[429, 500, 502, 503, 504])
-    s.mount("https://", TimeoutHTTPAdapter(max_retries=retries, timeout=config_proxy.timeout))
-    s.mount("http://", TimeoutHTTPAdapter(max_retries=retries, timeout=config_proxy.timeout))
+    s.mount("https://", TimeoutHTTPAdapter(max_retries=retries,
+            timeout=config_proxy.timeout))
+    s.mount("http://", TimeoutHTTPAdapter(max_retries=retries,
+            timeout=config_proxy.timeout))
     if config_proxy.enable:
         s.verify = config.getInstance().cacert_file()
         s.proxies = config_proxy.proxies()
     try:
-        browser = mechanicalsoup.StatefulBrowser(user_agent=ua or G_USER_AGENT, session=s)
+        browser = mechanicalsoup.StatefulBrowser(
+            user_agent=ua or G_USER_AGENT, session=s)
         if isinstance(url, str) and len(url):
             result = browser.open(url)
         else:
@@ -249,13 +258,16 @@ def get_html_by_form(url, form_select: str = None, fields: dict = None, cookies:
         requests.utils.add_dict_to_cookiejar(s.cookies, cookies)
     retries = Retry(total=config_proxy.retry, connect=config_proxy.retry, backoff_factor=1,
                     status_forcelist=[429, 500, 502, 503, 504])
-    s.mount("https://", TimeoutHTTPAdapter(max_retries=retries, timeout=config_proxy.timeout))
-    s.mount("http://", TimeoutHTTPAdapter(max_retries=retries, timeout=config_proxy.timeout))
+    s.mount("https://", TimeoutHTTPAdapter(max_retries=retries,
+            timeout=config_proxy.timeout))
+    s.mount("http://", TimeoutHTTPAdapter(max_retries=retries,
+            timeout=config_proxy.timeout))
     if config_proxy.enable:
         s.verify = config.getInstance().cacert_file()
         s.proxies = config_proxy.proxies()
     try:
-        browser = mechanicalsoup.StatefulBrowser(user_agent=ua or G_USER_AGENT, session=s)
+        browser = mechanicalsoup.StatefulBrowser(
+            user_agent=ua or G_USER_AGENT, session=s)
         result = browser.open(url)
         if not result.ok:
             return None
@@ -289,8 +301,10 @@ def get_html_by_scraper(url: str = None, cookies: dict = None, ua: str = None, r
         requests.utils.add_dict_to_cookiejar(session.cookies, cookies)
     retries = Retry(total=config_proxy.retry, connect=config_proxy.retry, backoff_factor=1,
                     status_forcelist=[429, 500, 502, 503, 504])
-    session.mount("https://", TimeoutHTTPAdapter(max_retries=retries, timeout=config_proxy.timeout))
-    session.mount("http://", TimeoutHTTPAdapter(max_retries=retries, timeout=config_proxy.timeout))
+    session.mount("https://", TimeoutHTTPAdapter(max_retries=retries,
+                  timeout=config_proxy.timeout))
+    session.mount("http://", TimeoutHTTPAdapter(max_retries=retries,
+                  timeout=config_proxy.timeout))
     if config_proxy.enable:
         session.verify = config.getInstance().cacert_file()
         session.proxies = config_proxy.proxies()
@@ -511,16 +525,20 @@ def download_file_with_filename(url: str, filename: str, path: str) -> None:
                 return
         except requests.exceptions.ProxyError:
             i += 1
-            print('[-]Download :  Connect retry ' + str(i) + '/' + str(config_proxy.retry))
+            print('[-]Download :  Connect retry ' +
+                  str(i) + '/' + str(config_proxy.retry))
         except requests.exceptions.ConnectTimeout:
             i += 1
-            print('[-]Download :  Connect retry ' + str(i) + '/' + str(config_proxy.retry))
+            print('[-]Download :  Connect retry ' +
+                  str(i) + '/' + str(config_proxy.retry))
         except requests.exceptions.ConnectionError:
             i += 1
-            print('[-]Download :  Connect retry ' + str(i) + '/' + str(config_proxy.retry))
+            print('[-]Download :  Connect retry ' +
+                  str(i) + '/' + str(config_proxy.retry))
         except requests.exceptions.RequestException:
             i += 1
-            print('[-]Download :  Connect retry ' + str(i) + '/' + str(config_proxy.retry))
+            print('[-]Download :  Connect retry ' +
+                  str(i) + '/' + str(config_proxy.retry))
         except IOError:
             raise ValueError(f"[-]Create Directory '{path}' failed!")
             return
@@ -539,7 +557,8 @@ def download_one_file(args) -> str:
 
     (url, save_path, json_headers) = args
     if json_headers is not None:
-        filebytes = get_html(url, return_type='content', json_headers=json_headers['headers'])
+        filebytes = get_html(url, return_type='content',
+                             json_headers=json_headers['headers'])
     else:
         filebytes = get_html(url, return_type='content')
     if isinstance(filebytes, bytes) and len(filebytes):
@@ -612,9 +631,9 @@ Purpose: benchmark get_html_session
 TODO: may be this should move to unittest directory
 """
 if __name__ == "__main__":
-    import sys, timeit
+    import sys
+    import timeit
     from http.client import HTTPConnection
-
 
     def benchmark(times: int, url):
         print(f"HTTP GET Benchmark times:{times} url:{url}")
@@ -634,7 +653,6 @@ if __name__ == "__main__":
                            "from __main__ import get_html",
                            number=times)
         print(f' *{tm:>10.5f}s get_html()')
-
 
     # target_url = "https://www.189.cn/"
     target_url = "http://www.chinaunicom.com"

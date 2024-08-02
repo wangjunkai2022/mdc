@@ -14,8 +14,8 @@ class Ggjav(Parser):
     def search(self, number):
         self.number = number
         if 'fc2' in number.lower():
-            self.num = re.search(r'(\d\d\d\d\d\d\d)', number).group()
-            self.number = "fc2-ppv-" + self.num
+            self.num = re.search(r'(\d{5,9})', number).group()
+            self.number = "fc2ppv-" + self.num
         search_url = f"https://ggjav.com/main/search?string={self.number}"
         self.htmlcode = self.getHtml(search_url)
         # htmltree = etree.fromstring(self.htmlcode, etree.HTMLParser())
@@ -23,7 +23,7 @@ class Ggjav(Parser):
         if self.htmlcode == 404:
             return 404
         htmltree = lxml.html.fromstring(self.htmlcode)
-        
+
         href = self.getTreeElement(htmltree,
                                    '//div[starts-with(@class,"columns large-3 medium-6 small-12 item float-left")]/a/@href'
                                    # '//div[starts-with(@class,columns)]'
@@ -38,7 +38,11 @@ class Ggjav(Parser):
 
     def getNum(self, htmltree):
         number = self.getTreeElement(htmltree, self.expr_number)
-        number = number.split("：")[1]
+        if 'fc2' in self.number.lower():
+            num = re.search(r'(\d{5,9})', number).group()
+            number = "FC2PPV-" + num
+        else:
+            number = number.split("：")[1]
         # if self.num and number == self.num:
         #     return self.number
         return number
@@ -48,4 +52,7 @@ class Ggjav(Parser):
         return cover
 
     def getTitle(self, htmltree):
-        return self.getTreeElement(htmltree, self.expr_title).strip()
+        title = self.getTreeElement(htmltree, self.expr_title).strip()
+        if title == "":
+            return self.getNum(self, htmltree)
+        return title

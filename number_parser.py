@@ -61,15 +61,18 @@ def __get_number(debug: bool, file_path: str) -> str:
             return file_number
         elif '-' in filepath or '_' in filepath:  # 普通提取番号 主要处理包含减号-和_的番号
             filepath = G_spat.sub("", filepath)
-            filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
+            filename = str(
+                re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
             lower_check = filename.lower()
             if 'fc2' in lower_check:
                 re_file = lower_check.find("fc2")
                 if re_file > 0:
                     lower_check = lower_check[re_file:]
-                filename = lower_check.replace('--', '-').replace('_', '-').upper()
+                filename = lower_check.replace(
+                    '--', '-').replace('_', '-').upper()
 
-            filename = re.sub("[-_]cd\d{1,2}", "", filename, flags=re.IGNORECASE)
+            filename = re.sub("[-_]cd\d{1,2}", "",
+                              filename, flags=re.IGNORECASE)
             if not re.search("-|_", filename):  # 去掉-CD1之后再无-的情况，例如n1012-CD1.wmv
                 return str(re.search(r'\w+', filename[:filename.find('.')], re.A).group())
             file_number = os.path.splitext(filename)
@@ -81,11 +84,14 @@ def __get_number(debug: bool, file_path: str) -> str:
 
             new_file_number = file_number
             if re.search("-c", file_number, flags=re.IGNORECASE):
-                new_file_number = re.sub("(-|_)c$", "", file_number, flags=re.IGNORECASE)
+                new_file_number = re.sub(
+                    "(-|_)c$", "", file_number, flags=re.IGNORECASE)
             elif re.search("-u$", file_number, flags=re.IGNORECASE):
-                new_file_number = re.sub("(-|_)u$", "", file_number, flags=re.IGNORECASE)
+                new_file_number = re.sub(
+                    "(-|_)u$", "", file_number, flags=re.IGNORECASE)
             elif re.search("-uc$", file_number, flags=re.IGNORECASE):
-                new_file_number = re.sub("(-|_)uc$", "", file_number, flags=re.IGNORECASE)
+                new_file_number = re.sub(
+                    "(-|_)uc$", "", file_number, flags=re.IGNORECASE)
             elif re.search("\d+ch$", file_number, flags=re.I):
                 new_file_number = file_number[:-2]
 
@@ -109,10 +115,20 @@ def __get_number(debug: bool, file_path: str) -> str:
 
 
 def get_number(debug: bool, file_path: str) -> str:
-    number = __get_number(debug, file_path)
-    if number == "uncensored":
-        return None
-    return number
+    if config.getInstance().video_type() == "adult":
+        number = __get_number(debug, file_path)
+        if number == "uncensored":
+            return None
+        return number
+    else:
+        return _get_general_number(file_path)
+
+
+def _get_general_number(file_path: str) -> str:
+    number = input(f"当前搜刮的电影:{file_path}\n请输入电影名").strip()
+    if number != "":
+        return number
+    return None
 
 
 def defNumbers(name):
@@ -194,7 +210,8 @@ def is_uncensored(number) -> bool:
     ):
         return True
     if G_cache_uncensored_conf.is_empty():
-        G_cache_uncensored_conf.set(config.getInstance().get_uncensored().split(','))
+        G_cache_uncensored_conf.set(
+            config.getInstance().get_uncensored().split(','))
     return bool(G_cache_uncensored_conf.check(number))
 
 
@@ -202,6 +219,7 @@ if __name__ == "__main__":
     #     import doctest
     #     doctest.testmod(raise_on_error=True)
     test_use_cases = (
+        "/Users/evan/rclone_pikpak/sis001/母乳孕妇/W703/fc2ppv_1026452.mp4",
         "/Volumes/dav/色花堂无码无破解/sehuatang/FC2PPV-2736114/15000　その１.mp4",
         "ABP  028女子マネージャーは、僕達の性処理ペット。 028 春咲りょう  uncensored.mp4",
         "ABP  027 uncensored.mp4",
@@ -246,11 +264,9 @@ if __name__ == "__main__":
         "MKY-NS-001.mp4"
     )
 
-
     def evprint(evstr):
         code = compile(evstr, "<string>", "eval")
         print("{1:>20} # '{0}'".format(evstr[18:-2], eval(code)))
-
 
     for t in test_use_cases:
         evprint(f'get_number(True, "{t}")')
@@ -282,7 +298,8 @@ if __name__ == "__main__":
             ES_prog_path = 'es.exe'  # es.exe需要放在PATH环境变量的路径之内
             ES_cmdline = f'{ES_prog_path} -name size:gigantic ext:mp4;avi;rmvb;wmv;mov;mkv;flv;ts;webm;iso;mpg;m4v'
             out_bytes = subprocess.check_output(ES_cmdline.split(' '))
-            out_text = out_bytes.decode('gb18030')  # 中文版windows 10 x64默认输出GB18030，此编码为UNICODE方言与UTF-8系全射关系无转码损失
+            # 中文版windows 10 x64默认输出GB18030，此编码为UNICODE方言与UTF-8系全射关系无转码损失
+            out_text = out_bytes.decode('gb18030')
             out_list = out_text.splitlines()
         elif sys.platform in ("linux", "darwin"):
             ES_prog_path = 'locate' if sys.platform == 'linux' else 'glocate'
@@ -290,9 +307,11 @@ if __name__ == "__main__":
                 ES_prog_path)
             out_bytes = subprocess.check_output(ES_cmdline.split(' '))
             out_text = out_bytes.decode('utf-8')
-            out_list = [os.path.basename(line) for line in out_text.splitlines()]
+            out_list = [os.path.basename(line)
+                        for line in out_text.splitlines()]
         else:
-            print('[-]Unsupported platform! Please run on OS Windows/Linux/MacOSX. Exit.')
+            print(
+                '[-]Unsupported platform! Please run on OS Windows/Linux/MacOSX. Exit.')
             sys.exit(1)
     else:  # Windows single disk
         if sys.platform != "win32":
@@ -309,15 +328,18 @@ if __name__ == "__main__":
             ES_search_path = os.path.normcase(ES_search_path)
         ES_cmdline = f'{ES_prog_path} -path {ES_search_path} -name size:gigantic ext:mp4;avi;rmvb;wmv;mov;mkv;webm;iso;mpg;m4v'
         out_bytes = subprocess.check_output(ES_cmdline.split(' '))
-        out_text = out_bytes.decode('gb18030')  # 中文版windows 10 x64默认输出GB18030，此编码为UNICODE方言与UTF-8系全射关系无转码损失
+        # 中文版windows 10 x64默认输出GB18030，此编码为UNICODE方言与UTF-8系全射关系无转码损失
+        out_text = out_bytes.decode('gb18030')
         out_list = out_text.splitlines()
-    print(f'\n[!]{ES_prog_path} is searching {ES_search_path} for movies as number parser test cases...')
+    print(
+        f'\n[!]{ES_prog_path} is searching {ES_search_path} for movies as number parser test cases...')
     print(f'[+]Find {len(out_list)} Movies.')
     for filename in out_list:
         try:
             n = get_number(True, filename)
             if n:
-                print('  [{0}] {2}# {1}'.format(n, filename, '#无码' if is_uncensored(n) else ''))
+                print('  [{0}] {2}# {1}'.format(
+                    n, filename, '#无码' if is_uncensored(n) else ''))
             else:
                 print(f'[-]Number return None. # {filename}')
         except Exception as e:
