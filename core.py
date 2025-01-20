@@ -939,16 +939,16 @@ def move_subtitles(filepath, path, multi_part, number, part, leak_word, c_word, 
             sub_targetpath = Path(
                 path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
             if link_mode not in (1, 2):
-                while not os.path.exists(str(sub_targetpath)):
-                    shutil.move(str(subfile), str(sub_targetpath),
+                # while not os.path.exists(str(sub_targetpath)):
+                shutil.move(str(subfile), str(sub_targetpath),
                                 copy_function=shutil.copytree)
-                    time.sleep(5)
+                    # time.sleep(5)
                 print(f"[+]Sub Moved!        {sub_targetpath.name}")
                 result = True
             else:
-                while not os.path.exists(str(sub_targetpath)):
-                    shutil.copyfile(str(subfile), str(sub_targetpath))
-                    time.sleep(5)
+                # while not os.path.exists(str(sub_targetpath)):
+                shutil.copyfile(str(subfile), str(sub_targetpath))
+                    # time.sleep(5)
 
                 print(f"[+]Sub Copied!       {sub_targetpath.name}")
                 result = True
