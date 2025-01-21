@@ -693,7 +693,7 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
                     f'[-]File:\n{targetpath}\nExists while moving to FailedFolder index:{__nameIndex} paste_file_to_folder')
                 __nameIndex = __nameIndex + 1
                 targetpath = os.path.join(
-                    path, f"{number}{leak_word}{c_word}{hack_word}_Have{__nameIndex}{houzhui}")
+                    path, f"{number}{leak_word}{c_word}{hack_word}-Have{__nameIndex}{houzhui}")
             # raise FileExistsErro
             # r('File Exists on destination path, we will never overwriting.')
         link_mode = config.getInstance().link_mode()
@@ -754,7 +754,7 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
                 f'[-]File:\n{targetpath}\nExists while moving to FailedFolder index:{__nameIndex}  paste_file_to_folder_mode2')
             __nameIndex = __nameIndex + 1
             targetpath = os.path.join(
-                path, f"{number}{part}{leak_word}{c_word}{hack_word}_Have{__nameIndex}{houzhui}")
+                path, f"{number}{part}{leak_word}{c_word}{hack_word}-Have{__nameIndex}{houzhui}")
         # raise FileExistsError('File Exists on destination path, we will never overwriting.')
     try:
         link_mode = config.getInstance().link_mode()
