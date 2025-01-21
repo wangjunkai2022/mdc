@@ -9,6 +9,7 @@ from datetime import datetime
 # from videoprops import get_video_properties
 
 from ADC_function import *
+from db_tools import VideoData
 from scraper import get_data_from_json
 from number_parser import is_uncensored
 from ImageProcessing import cutImage
@@ -674,7 +675,7 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
 
 
 # 文件路径，番号，后缀，要移动至的位置
-def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_word, hack_word):
+def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_word, hack_word, db_data: VideoData):
     filepath_obj = pathlib.Path(filepath)
     houzhui = filepath_obj.suffix.lower()
     try:
@@ -701,15 +702,19 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
         # 移除原先soft_link=2的功能代码，因默认记录日志，已经可追溯文件来源
         create_softlink = False
         if link_mode not in (1, 2):
-            while not os.path.exists(targetpath):
-                shutil.move(filepath, targetpath,
-                            copy_function=shutil.copytree)
-                time.sleep(5)
+            # while not os.path.exists(targetpath):
+            shutil.move(filepath, targetpath,
+                        copy_function=shutil.copytree)
+                # time.sleep(5)
             print(f"移动成功\t原路径\n{filepath}\n现在路径\n{targetpath}")
+            if db_data:
+                db_data.moved_path = targetpath
         elif link_mode == 2:
             # 跨卷或跨盘符无法建立硬链接导致异常，回落到建立软链接
             try:
                 os.link(filepath, targetpath, follow_symlinks=False)
+                if db_data:
+                    db_data.hard_link_path = targetpath
                 print(f"硬链接成功\t原路径\n{filepath}\n现在路径\n{targetpath}")
             except:
                 create_softlink = True
@@ -719,6 +724,8 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
             try:
                 filerelpath = os.path.relpath(filepath, path)
                 os.symlink(filerelpath, targetpath)
+                if db_data:
+                    db_data.soft_link_path = targetpath
                 print(f"软链接成功\t原路径\n{filepath}\n现在路径\n{targetpath}")
             except:
                 os.symlink(str(filepath_obj.resolve()), targetpath)
@@ -737,7 +744,7 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
 
 
 def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_word, c_word,
-                               hack_word):  # 文件路径，番号，后缀，要移动至的位置
+                               hack_word, db_data: VideoData):  # 文件路径，番号，后缀，要移动至的位置
     if multi_part == 1:
         number += part  # 这时number会被附加上CD1后缀
     filepath_obj = pathlib.Path(filepath)
@@ -760,21 +767,27 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         link_mode = config.getInstance().link_mode()
         create_softlink = False
         if link_mode not in (1, 2):
-            while not os.path.exists(targetpath):
-                shutil.move(filepath, targetpath,
+            # while not os.path.exists(targetpath):
+            shutil.move(filepath, targetpath,
                             copy_function=shutil.copytree)
-                time.sleep(5)
+                # time.sleep(5)
             print("[!]Move =>          ", targetpath)
+            if db_data:
+                db_data.moved_path = targetpath
             return
         elif link_mode == 2:
             try:
                 os.link(filepath, targetpath, follow_symlinks=False)
+                if db_data:
+                    db_data.hard_link_path = targetpath
             except:
                 create_softlink = True
         if link_mode == 1 or create_softlink:
             try:
                 filerelpath = os.path.relpath(filepath, path)
                 os.symlink(filerelpath, targetpath)
+                if db_data:
+                    db_data.soft_link_path = targetpath
             except:
                 os.symlink(str(filepath_obj.resolve()), targetpath)
         print("[!]Link =>          ", path)
@@ -957,7 +970,7 @@ def move_subtitles(filepath, path, multi_part, number, part, leak_word, c_word, 
     return result
 
 
-def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=None):
+def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=None, db_data : VideoData = None):
     conf = config.getInstance()
     # =======================================================================初始化所需变量
     multi_part = False
@@ -981,7 +994,9 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     if not json_data:
         moveFailedFolder(movie_path)
         return
-
+    if db_data:
+        db_data.video_number = number
+        db_data.scrape_data = json_data
     if json_data["number"] != number:
         # fix issue #119
         # the root cause is we normalize the search id
@@ -1127,7 +1142,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 移动电影
         paste_file_to_folder(movie_path, path, multi_part,
-                             number, part, leak_word, c_word, hack_word)
+                             number, part, leak_word, c_word, hack_word,db_data)
 
         # Move subtitles
         move_status = move_subtitles(
@@ -1151,7 +1166,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         path = create_folder(json_data)
         # 移动文件
         paste_file_to_folder_mode2(
-            movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
+            movie_path, path, multi_part, number, part, leak_word, c_word, hack_word,db_data)
 
         # Move subtitles
         move_subtitles(movie_path, path, multi_part, number,

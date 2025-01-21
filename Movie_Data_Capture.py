@@ -21,7 +21,7 @@ from scraper import get_data_from_json
 from ADC_function import file_modification_days, get_html, parallel_download_files
 from number_parser import get_number
 from core import core_main, core_main_no_net_op, moveFailedFolder, debug_print
-
+from db_tools import VideoData
 
 def check_update(local_version):
     htmlcode = get_html("https://api.github.com/repos/yoshiko2/Movie_Data_Capture/releases/latest")
@@ -450,7 +450,8 @@ def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC):
     debug = config.getInstance().debug()
     movie_path = os.path.abspath(movie_path)
     n_number = get_number(debug, movie_path)
-
+    db_data = VideoData(movie_path)
+    db_data.video_number = n_number
     if debug is True:
         print(f"[!] [{n_number}] As Number Processing for '{movie_path}'")
         if zero_op:
@@ -459,7 +460,7 @@ def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC):
             if no_net_op:
                 core_main_no_net_op(movie_path, n_number)
             else:
-                core_main(movie_path, n_number, oCC)
+                core_main(movie_path, n_number, oCC,db_data = db_data)
         else:
             print("[-] number empty ERROR")
             moveFailedFolder(movie_path)
@@ -473,7 +474,7 @@ def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC):
                 if no_net_op:
                     core_main_no_net_op(movie_path, n_number)
                 else:
-                    core_main(movie_path, n_number, oCC)
+                    core_main(movie_path, n_number, oCC,db_data=db_data)
             else:
                 raise ValueError("number empty")
             print("[*]======================================================")
@@ -485,15 +486,18 @@ def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC):
                 moveFailedFolder(movie_path)
             except Exception as err:
                 print('[!]', err)
+    db_data.save_to_db()
 
 
 def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC, specified_source, specified_url):
     conf = config.getInstance()
     file_name = os.path.basename(file_path)
+    db_data = VideoData(file_name)
+    db_data.video_number = custom_number
     try:
         print("[!] [{1}] As Number Processing for '{0}'".format(file_path, custom_number))
         if custom_number:
-            core_main(file_path, custom_number, oCC, specified_source, specified_url)
+            core_main(file_path, custom_number, oCC, specified_source, specified_url,db_data)
         else:
             print("[-] number empty ERROR")
         print("[*]======================================================")
@@ -511,7 +515,7 @@ def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC, 
                     shutil.move(file_path, os.path.join(conf.failed_folder(), file_name))
             except Exception as err:
                 print('[!]', err)
-
+    db_data.save_to_db()
 
 movie_list = []
 
@@ -562,40 +566,6 @@ def main(args: tuple) -> Path:
                     "" if conf.stop_counter() == 0 else f", stop_counter={conf.stop_counter()}"
                     ) if not single_file_path else ('-', 'Single File', '', '', ''))
           )
-
-    if conf.update_check():
-        try:
-            check_update(version)
-
-            # Download Mapping Table, parallel version
-            def fmd(f) -> typing.Tuple[str, Path]:
-                return ('https://raw.githubusercontent.com/yoshiko2/Movie_Data_Capture/master/MappingTable/' + f,
-                        Path.home() / '.local' / 'share' / 'mdc' / f)
-
-            map_tab = (fmd('mapping_actor.xml'), fmd('mapping_info.xml'), fmd('c_number.json'))
-            for k, v in map_tab:
-                if v.exists():
-                    if file_modification_days(str(v)) >= conf.mapping_table_validity():
-                        print("[+]Mapping Table Out of date! Remove", str(v))
-                        os.remove(str(v))
-            res = parallel_download_files(((k, v) for k, v in map_tab if not v.exists()))
-            for i, fp in enumerate(res, start=1):
-                if fp and len(fp):
-                    print(f"[+] [{i}/{len(res)}] Mapping Table Downloaded to {fp}")
-                else:
-                    print(f"[-] [{i}/{len(res)}] Mapping Table Download failed")
-        except:
-            print("[!]" + " WARNING ".center(54, "="))
-            print('[!]' + '-- GITHUB CONNECTION FAILED --'.center(54))
-            print('[!]' + 'Failed to check for updates'.center(54))
-            print('[!]' + '& update the mapping table'.center(54))
-            print("[!]" + "".center(54, "="))
-            try:
-                etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_actor.xml'))
-            except:
-                print('[!]' + "Failed to load mapping table".center(54))
-                print('[!]' + "".center(54, "="))
-
     create_failed_folder(conf.failed_folder())
 
     # create OpenCC converter

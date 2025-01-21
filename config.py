@@ -29,7 +29,7 @@ class Config:
             Path.home() / "mdc.ini",
             Path.home() / ".mdc.ini",
             Path.home() / ".mdc/config.ini",
-            Path.home() / ".config/mdc/config.ini"
+            Path.home() / ".config/mdc/config.ini",
         )
         ini_path = None
         for p in path_search_order:
@@ -41,7 +41,7 @@ class Config:
             self.ini_path = ini_path
             if os.path.exists("/config") and not os.path.exists("/config/config.ini"):
                 print("复制一份配置文件在/config目录 下次读这个配置")
-                os.popen(f'cp {ini_path} /config/config.ini')
+                os.popen(f"cp {ini_path} /config/config.ini")
             try:
                 if self.conf.read(ini_path, encoding="utf-8-sig"):
                     if G_conf_override[0] is None:
@@ -53,7 +53,7 @@ class Config:
             except Exception as e:
                 print("ERROR: Config file can not read!")
                 print("读取配置文件出错！")
-                print('=================================')
+                print("=================================")
                 print(e)
                 print("======= Auto exit in 60s ======== ")
                 time.sleep(60)
@@ -61,28 +61,31 @@ class Config:
         else:
             print("ERROR: Config file not found!")
             print("Please put config file into one of the following path:")
-            print('\n'.join([str(p.resolve()) for p in path_search_order[2:]]))
+            print("\n".join([str(p.resolve()) for p in path_search_order[2:]]))
             # 对于找不到配置文件的情况，还是在打包时附上对应版本的默认配置文件，有需要时为其在搜索路径中生成，
             # 要比用户乱找一个版本不对应的配置文件会可靠些。这样一来，单个执行文件就是功能完整的了，放在任何
             # 执行路径下都可以放心使用。
             res_path = None
             # pyinstaller打包的在打包中找config.ini
-            if hasattr(sys, '_MEIPASS') and (Path(getattr(sys, '_MEIPASS')) / 'config.ini').is_file():
-                res_path = Path(getattr(sys, '_MEIPASS')) / 'config.ini'
+            if (
+                hasattr(sys, "_MEIPASS")
+                and (Path(getattr(sys, "_MEIPASS")) / "config.ini").is_file()
+            ):
+                res_path = Path(getattr(sys, "_MEIPASS")) / "config.ini"
             # 脚本运行的所在位置找
-            elif (Path(__file__).resolve().parent / 'config.ini').is_file():
-                res_path = Path(__file__).resolve().parent / 'config.ini'
+            elif (Path(__file__).resolve().parent / "config.ini").is_file():
+                res_path = Path(__file__).resolve().parent / "config.ini"
             if res_path is None:
                 os._exit(2)
-            ins = input(
-                "Or, Do you want me create a config file for you? (Yes/No)[Y]:")
-            if re.search('n', ins, re.I):
+            ins = input("Or, Do you want me create a config file for you? (Yes/No)[Y]:")
+            if re.search("n", ins, re.I):
                 os._exit(2)
             # 用户目录才确定具有写权限，因此选择 ~/mdc.ini 作为配置文件生成路径，而不是有可能并没有写权限的
             # 当前目录。目前版本也不再鼓励使用当前路径放置配置文件了，只是作为多配置文件的切换技巧保留。
             write_path = path_search_order[2]  # Path.home() / "mdc.ini"
-            write_path.write_text(res_path.read_text(
-                encoding='utf-8'), encoding='utf-8')
+            write_path.write_text(
+                res_path.read_text(encoding="utf-8"), encoding="utf-8"
+            )
             print("Config file '{}' created.".format(write_path.resolve()))
             input("Press Enter key exit...")
             os._exit(0)
@@ -121,16 +124,18 @@ class Config:
 
         sections = self.conf.sections()
         sec_name = None
-        for cmd in option_cmd.split(';'):
+        for cmd in option_cmd.split(";"):
             syntax_err = True
-            rex = re.findall(r'^(.*?):(.*?)(=|\+=)(.*)$', cmd, re.U)
+            rex = re.findall(r"^(.*?):(.*?)(=|\+=)(.*)$", cmd, re.U)
             if len(rex) and len(rex[0]) == 4:
                 (sec, key, assign, val) = rex[0]
                 sec_lo = sec.lower().strip()
                 key_lo = key.lower().strip()
                 syntax_err = False
-            elif sec_name:  # 已经出现过一次小节名，属于同一个小节的后续键名可以省略小节名
-                rex = re.findall(r'^(.*?)(=|\+=)(.*)$', cmd, re.U)
+            elif (
+                sec_name
+            ):  # 已经出现过一次小节名，属于同一个小节的后续键名可以省略小节名
+                rex = re.findall(r"^(.*?)(=|\+=)(.*)$", cmd, re.U)
                 if len(rex) and len(rex[0]) == 3:
                     (key, assign, val) = rex[0]
                     sec_lo = sec_name.lower()
@@ -138,13 +143,14 @@ class Config:
                     syntax_err = False
             if syntax_err:
                 err_exit(
-                    f"[-]Config override syntax incorrect. example: 'd:s=1' or 'debug_mode:switch=1'. cmd='{cmd}' all='{option_cmd}'")
+                    f"[-]Config override syntax incorrect. example: 'd:s=1' or 'debug_mode:switch=1'. cmd='{cmd}' all='{option_cmd}'"
+                )
             if not len(sec_lo):
                 err_exit(
-                    f"[-]Config override Section name '{sec}' is empty! cmd='{cmd}'")
+                    f"[-]Config override Section name '{sec}' is empty! cmd='{cmd}'"
+                )
             if not len(key_lo):
-                err_exit(
-                    f"[-]Config override Key name '{key}' is empty! cmd='{cmd}'")
+                err_exit(f"[-]Config override Key name '{key}' is empty! cmd='{cmd}'")
             if not len(val.strip()):
                 print(f"[!]Conig overide value '{val}' is empty! cmd='{cmd}'")
             sec_name = None
@@ -153,11 +159,13 @@ class Config:
                     continue
                 if sec_name:
                     err_exit(
-                        f"[-]Conig overide Section short name '{sec_lo}' is not unique! dup1='{sec_name}' dup2='{s}' cmd='{cmd}'")
+                        f"[-]Conig overide Section short name '{sec_lo}' is not unique! dup1='{sec_name}' dup2='{s}' cmd='{cmd}'"
+                    )
                 sec_name = s
             if sec_name is None:
                 err_exit(
-                    f"[-]Conig overide Section name '{sec}' not found! cmd='{cmd}'")
+                    f"[-]Conig overide Section name '{sec}' not found! cmd='{cmd}'"
+                )
             key_name = None
             keys = self.conf[sec_name]
             for k in keys:
@@ -165,16 +173,17 @@ class Config:
                     continue
                 if key_name:
                     err_exit(
-                        f"[-]Conig overide Key short name '{key_lo}' is not unique! dup1='{key_name}' dup2='{k}' cmd='{cmd}'")
+                        f"[-]Conig overide Key short name '{key_lo}' is not unique! dup1='{key_name}' dup2='{k}' cmd='{cmd}'"
+                    )
                 key_name = k
             if key_name is None:
-                err_exit(
-                    f"[-]Conig overide Key name '{key}' not found! cmd='{cmd}'")
+                err_exit(f"[-]Conig overide Key name '{key}' not found! cmd='{cmd}'")
             if assign == "+=":
                 val = keys[key_name] + val
             if self.debug():
                 print(
-                    f"[!]Set config override [{sec_name}]{key_name}={val}  by cmd='{cmd}'")
+                    f"[!]Set config override [{sec_name}]{key_name}={val}  by cmd='{cmd}'"
+                )
             self.conf.set(sec_name, key_name, val)
 
     def main_mode(self) -> int:
@@ -187,13 +196,25 @@ class Config:
         return self.conf.get("video_type", "type")
 
     def source_folder(self) -> str:
-        return self.conf.get("common", "source_folder").replace("\\\\", "/").replace("\\", "/")
+        return (
+            self.conf.get("common", "source_folder")
+            .replace("\\\\", "/")
+            .replace("\\", "/")
+        )
 
     def failed_folder(self) -> str:
-        return self.conf.get("common", "failed_output_folder").replace("\\\\", "/").replace("\\", "/")
+        return (
+            self.conf.get("common", "failed_output_folder")
+            .replace("\\\\", "/")
+            .replace("\\", "/")
+        )
 
     def success_folder(self) -> str:
-        return self.conf.get("common", "success_output_folder").replace("\\\\", "/").replace("\\", "/")
+        return (
+            self.conf.get("common", "success_output_folder")
+            .replace("\\\\", "/")
+            .replace("\\", "/")
+        )
 
     def actor_gender(self) -> str:
         return self.conf.get("common", "actor_gender")
@@ -249,14 +270,14 @@ class Config:
 
     def rerun_delay(self) -> int:
         value = self.conf.get("advenced_sleep", "rerun_delay")
-        if not (isinstance(value, str) and re.match(r'^[\dsmh]+$', value, re.I)):
+        if not (isinstance(value, str) and re.match(r"^[\dsmh]+$", value, re.I)):
             return 0  # not match '1h30m45s' or '30' or '1s2m1h4s5m'
         if value.isnumeric() and int(value) >= 0:
             return int(value)
         sec = 0
-        sec += sum(int(v) for v in re.findall(r'(\d+)s', value, re.I))
-        sec += sum(int(v) for v in re.findall(r'(\d+)m', value, re.I)) * 60
-        sec += sum(int(v) for v in re.findall(r'(\d+)h', value, re.I)) * 3600
+        sec += sum(int(v) for v in re.findall(r"(\d+)s", value, re.I))
+        sec += sum(int(v) for v in re.findall(r"(\d+)m", value, re.I)) * 60
+        sec += sum(int(v) for v in re.findall(r"(\d+)h", value, re.I)) * 3600
         return sec
 
     def is_translate(self) -> bool:
@@ -293,8 +314,7 @@ class Config:
 
     def get_extrafanart(self):
         try:
-            extrafanart_download = self.conf.get(
-                "extrafanart", "extrafanart_folder")
+            extrafanart_download = self.conf.get("extrafanart", "extrafanart_folder")
             return extrafanart_download
         except ValueError:
             self._exit("extrafanart_folder")
@@ -334,16 +354,16 @@ class Config:
             self._exit("common")
 
     def cacert_file(self) -> str:
-        return self.conf.get('proxy', 'cacert_file')
+        return self.conf.get("proxy", "cacert_file")
 
     def media_type(self) -> str:
-        return self.conf.get('media', 'media_type')
+        return self.conf.get("media", "media_type")
 
     def sub_rule(self) -> typing.Set[str]:
-        return set(self.conf.get('media', 'sub_type').lower().split(','))
+        return set(self.conf.get("media", "sub_type").lower().split(","))
 
     def photo_type(self) -> str:
-        return self.conf.get('media', 'photo_type')
+        return self.conf.get("media", "photo_type")
 
     def naming_rule(self) -> str:
         return self.conf.get("Name_Rule", "naming_rule")
@@ -441,8 +461,11 @@ class Config:
         return v if v in (0, 1, 2) else 2 if v > 2 else 0
 
     def cc_convert_vars(self) -> str:
-        return self.conf.get("cc_convert", "vars",
-                             fallback="actor,director,label,outline,series,studio,tag,title")
+        return self.conf.get(
+            "cc_convert",
+            "vars",
+            fallback="actor,director,label,outline,series,studio,tag,title",
+        )
 
     def javdb_sites(self) -> str:
         return self.conf.get("javdb", "sites", fallback="38,39")
@@ -490,6 +513,10 @@ class Config:
 
     def organize_alist_pd(self) -> str:
         return self.conf.get("organize", "alist_pd", fallback="")
+
+    # 数据库
+    def sql_path(self) -> str:
+        return self.conf.get("sqlite", "path", fallback="./video_data.db")
 
     @staticmethod
     def _exit(sec: str) -> None:
@@ -552,8 +579,11 @@ class Config:
 
         sec6 = "priority"
         conf.add_section(sec6)
-        conf.set(sec6, "website",
-                 "airav,javbus,javdb,fanza,xcity,mgstage,fc2,fc2club,avsox,jav321,xcity")
+        conf.set(
+            sec6,
+            "website",
+            "airav,javbus,javdb,fanza,xcity,mgstage,fc2,fc2club,avsox,jav321,xcity",
+        )
 
         sec7 = "escape"
         conf.add_section(sec7)
@@ -585,10 +615,14 @@ class Config:
 
         sec12 = "media"
         conf.add_section(sec12)
-        conf.set(sec12, "media_type",
-                 ".mp4,.avi,.rmvb,.wmv,.mov,.mkv,.flv,.ts,.webm,iso")
-        conf.set(sec12, "sub_type",
-                 ".smi,.srt,.idx,.sub,.sup,.psb,.ssa,.ass,.usf,.xss,.ssf,.rt,.lrc,.sbv,.vtt,.ttml")
+        conf.set(
+            sec12, "media_type", ".mp4,.avi,.rmvb,.wmv,.mov,.mkv,.flv,.ts,.webm,iso"
+        )
+        conf.set(
+            sec12,
+            "sub_type",
+            ".smi,.srt,.idx,.sub,.sup,.psb,.ssa,.ass,.usf,.xss,.ssf,.rt,.lrc,.sbv,.vtt,.ttml",
+        )
 
         sec13 = "watermark"
         conf.add_section(sec13)
@@ -614,8 +648,7 @@ class Config:
         sec16 = "cc_convert"
         conf.add_section(sec16)
         conf.set(sec16, "mode", "1")
-        conf.set(sec16, "vars",
-                 "actor,director,label,outline,series,studio,tag,title")
+        conf.set(sec16, "vars", "actor,director,label,outline,series,studio,tag,title")
 
         sec17 = "javdb"
         conf.add_section(sec17)
@@ -646,12 +679,16 @@ class Config:
         conf.set(sec21, "alist_domain", "")
         conf.set(sec21, "alist_user", "")
         conf.set(sec21, "alist_pd", "")
+
+        sec22 = "sqlite"
+        conf.add_section(sec22)
+        conf.set(sec22, "path", "./data.db")
         return conf
 
 
-class IniProxy():
-    """ Proxy Config from .ini
-    """
+class IniProxy:
+    """Proxy Config from .ini"""
+
     SUPPORT_PROXY_TYPE = ("http", "socks5", "socks5h")
 
     enable = False
@@ -661,9 +698,8 @@ class IniProxy():
     proxytype = "socks5"
 
     def __init__(self, switch, address, timeout, retry, proxytype) -> None:
-        """ Initial Proxy from .ini
-        """
-        if switch == '1' or switch == 1:
+        """Initial Proxy from .ini"""
+        if switch == "1" or switch == 1:
             self.enable = True
         self.address = address
         self.timeout = timeout
@@ -677,11 +713,15 @@ class IniProxy():
         """
         if self.address:
             if self.proxytype in self.SUPPORT_PROXY_TYPE:
-                proxies = {"http": self.proxytype + "://" + self.address,
-                           "https": self.proxytype + "://" + self.address}
+                proxies = {
+                    "http": self.proxytype + "://" + self.address,
+                    "https": self.proxytype + "://" + self.address,
+                }
             else:
-                proxies = {"http": "http://" + self.address,
-                           "https": "https://" + self.address}
+                proxies = {
+                    "http": "http://" + self.address,
+                    "https": "https://" + self.address,
+                }
         else:
             proxies = {}
 
@@ -689,20 +729,24 @@ class IniProxy():
 
 
 if __name__ == "__main__":
+
     def evprint(evstr):
         code = compile(evstr, "<string>", "eval")
         print('{}: "{}"'.format(evstr, eval(code)))
 
     config = Config()
-    mfilter = {'conf', 'proxy', '_exit',
-               '_default_config', 'ini_path', 'set_override'}
-    for _m in [m for m in dir(config) if not m.startswith('__') and m not in mfilter]:
-        evprint(f'config.{_m}()')
-    pfilter = {'proxies', 'SUPPORT_PROXY_TYPE'}
+    mfilter = {"conf", "proxy", "_exit", "_default_config", "ini_path", "set_override"}
+    for _m in [m for m in dir(config) if not m.startswith("__") and m not in mfilter]:
+        evprint(f"config.{_m}()")
+    pfilter = {"proxies", "SUPPORT_PROXY_TYPE"}
     # test getInstance()
-    assert (getInstance() == config)
-    for _p in [p for p in dir(getInstance().proxy()) if not p.startswith('__') and p not in pfilter]:
-        evprint(f'getInstance().proxy().{_p}')
+    assert getInstance() == config
+    for _p in [
+        p
+        for p in dir(getInstance().proxy())
+        if not p.startswith("__") and p not in pfilter
+    ]:
+        evprint(f"getInstance().proxy().{_p}")
 
     # Create new instance
     conf2 = Config()
