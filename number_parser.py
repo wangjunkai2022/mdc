@@ -11,7 +11,7 @@ G_spat = re.compile(
     re.IGNORECASE)
 
 
-def __get_number(debug: bool, file_path: str) -> str:
+def __get_number(debug: bool, file_path: str, get_filename: bool = False) -> str:
     """
     从文件路径中提取番号 from number_parser import get_number
     >>> get_number(False, "/Users/Guest/AV_Data_Capture/snis-829.mp4")
@@ -37,7 +37,10 @@ def __get_number(debug: bool, file_path: str) -> str:
     >>> get_number(False, "snis-829-C.mp4")
     'snis-829'
     """
-    file_path = os.path.abspath(os.path.dirname(file_path))
+    if get_filename:
+        file_path = os.path.abspath(file_path)
+    else:
+        file_path = os.path.abspath(os.path.dirname(file_path))
     filepath = os.path.basename(file_path)
     # debug True 和 False 两块代码块合并，原因是此模块及函数只涉及字符串计算，没有IO操作，debug on时输出导致异常信息即可
     try:
@@ -117,6 +120,8 @@ def __get_number(debug: bool, file_path: str) -> str:
 def get_number(debug: bool, file_path: str) -> str:
     if config.getInstance().video_type() == "adult":
         number = __get_number(debug, file_path)
+        if not number or number == "uncensored":
+            number = __get_number(debug, file_path, True)
         if number == "uncensored":
             return None
         return number
@@ -219,6 +224,7 @@ if __name__ == "__main__":
     #     import doctest
     #     doctest.testmod(raise_on_error=True)
     test_use_cases = (
+        "/media/Downloads/PD/Download/rousi/FC2-PPV-794727-HD/FC2-PPV-794727-HD.mp4",
         "/Users/evan/rclone_pikpak/sis001/母乳孕妇/W703/fc2ppv_1026452.mp4",
         "/Volumes/dav/色花堂无码无破解/sehuatang/FC2PPV-2736114/15000　その１.mp4",
         "ABP  028女子マネージャーは、僕達の性処理ペット。 028 春咲りょう  uncensored.mp4",
